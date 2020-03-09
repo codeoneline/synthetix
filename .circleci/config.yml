@@ -10,9 +10,6 @@ jobs:
     <<: *env_defaults
     steps:
       - checkout
-      - run:
-          name: update-npm
-          command: 'sudo npm install -g npm@latest'
       - restore_cache:
           keys:
             - 'v2-dependencies-{{ checksum "package-lock.json" }}'
@@ -28,7 +25,7 @@ jobs:
           paths:
             - node_modules
             # add compiled contracts to persisted workspace
-            # (note not currentlyw orking due to:
+            # (note not currently working due to:
             # https://github.com/trufflesuite/truffle/issues/2239#issuecomment-552041859)
             - build
 
@@ -42,12 +39,24 @@ jobs:
 
   test-contracts:
     <<: *env_defaults
+    parallelism: 4
+    # can bump this up if need be: https://circleci.com/docs/2.0/configuration-reference/#docker-executor
+    # resource_class: medium # default
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - run: npm run test:gas
-      - run: npx codechecks
+      - run: circleci tests glob "test/contracts/*.js" | circleci tests split --split-by=timings > /tmp/contracts-to-test
+      - run:
+          name: Tests in parallel
+          command: |
+            set +e
+            npm run ganache > /dev/null & # start ganache in background
+            npm run test:core -- $(cat /tmp/contracts-to-test)
+            EXIT_CODE=$?
+            cat test-gas-used.log
+            printf "\\n"
+            exit $EXIT_CODE
 
   test-publish:
     <<: *env_defaults
@@ -55,8 +64,33 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run: npm run test:publish
+      - run:
+          name: Test and output logs
+          command: |
+            set +e
+            npm run test:publish
+            EXIT_CODE=$?
+            if [ $EXIT_CODE -gt 0 ]; then
+              tail -n 2000 test/publish/test.log; # show tail of logs here if test failed
+            fi
+            exit $EXIT_CODE
       - run: cat test/publish/test.log
+
+  test-deployments:
+    <<: *env_defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: npm run test:deployments
+
+  test-local:
+    <<: *env_defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: npm run test:local
 
   test-kovan:
     <<: *env_defaults
@@ -94,6 +128,12 @@ workflows:
           requires:
             - prepare
       - test-publish:
+          requires:
+            - prepare
+      - test-deployments:
+          requires:
+            - prepare
+      - test-local:
           requires:
             - prepare
       - test-kovan:

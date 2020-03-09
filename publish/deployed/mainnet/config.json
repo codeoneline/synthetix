@@ -1,14 +1,29 @@
 {
+	"AddressResolver": {
+		"deploy": false
+	},
 	"ArbRewarder": {
 		"deploy": false
 	},
 	"Depot": {
 		"deploy": false
 	},
+	"DappMaintenance": {
+		"deploy": false
+	},
 	"EscrowChecker": {
 		"deploy": false
 	},
+	"EtherCollateral": {
+		"deploy": false
+	},
 	"ExchangeRates": {
+		"deploy": false
+	},
+	"Exchanger": {
+		"deploy": false
+	},
+	"ExchangeState": {
 		"deploy": false
 	},
 	"FeePool": {
@@ -21,6 +36,12 @@
 		"deploy": false
 	},
 	"DelegateApprovals": {
+		"deploy": false
+	},
+	"Issuer": {
+		"deploy": false
+	},
+	"IssuanceEternalStorage": {
 		"deploy": false
 	},
 	"SupplySchedule": {
@@ -39,9 +60,6 @@
 		"deploy": false
 	},
 	"SynthetixState": {
-		"deploy": false
-	},
-	"SynthXDR": {
 		"deploy": false
 	},
 	"SynthsUSD": {
@@ -80,13 +98,7 @@
 	"ProxySynthetix": {
 		"deploy": false
 	},
-	"ProxyXDR": {
-		"deploy": false
-	},
 	"ProxysUSD": {
-		"deploy": false
-	},
-	"ProxyERC20sUSD": {
 		"deploy": false
 	},
 	"ProxysEUR": {
@@ -116,10 +128,10 @@
 	"SafeDecimalMath": {
 		"deploy": false
 	},
-	"TokenStateSynthetix": {
+	"Math": {
 		"deploy": false
 	},
-	"TokenStateXDR": {
+	"TokenStateSynthetix": {
 		"deploy": false
 	},
 	"TokenStatesUSD": {
@@ -167,33 +179,6 @@
 	"SynthsBNB": {
 		"deploy": false
 	},
-	"TokenStateiBTC": {
-		"deploy": false
-	},
-	"ProxyiBTC": {
-		"deploy": false
-	},
-	"SynthiBTC": {
-		"deploy": false
-	},
-	"TokenStateiETH": {
-		"deploy": false
-	},
-	"ProxyiETH": {
-		"deploy": false
-	},
-	"SynthiETH": {
-		"deploy": false
-	},
-	"TokenStateiBNB": {
-		"deploy": false
-	},
-	"ProxyiBNB": {
-		"deploy": false
-	},
-	"SynthiBNB": {
-		"deploy": false
-	},
 	"TokenStatesMKR": {
 		"deploy": false
 	},
@@ -219,6 +204,33 @@
 		"deploy": false
 	},
 	"SynthsXTZ": {
+		"deploy": false
+	},
+	"TokenStateiBTC": {
+		"deploy": false
+	},
+	"ProxyiBTC": {
+		"deploy": false
+	},
+	"SynthiBTC": {
+		"deploy": false
+	},
+	"TokenStateiETH": {
+		"deploy": false
+	},
+	"ProxyiETH": {
+		"deploy": false
+	},
+	"SynthiETH": {
+		"deploy": false
+	},
+	"TokenStateiBNB": {
+		"deploy": false
+	},
+	"ProxyiBNB": {
+		"deploy": false
+	},
+	"SynthiBNB": {
 		"deploy": false
 	},
 	"TokenStateiMKR": {
@@ -264,6 +276,9 @@
 		"deploy": false
 	},
 	"SynthiCEX": {
+		"deploy": false
+	},
+	"ProxyERC20sUSD": {
 		"deploy": false
 	},
 	"TokenStatesXRP": {

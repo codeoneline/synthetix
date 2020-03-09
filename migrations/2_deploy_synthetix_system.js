@@ -1,35 +1,46 @@
 const { table } = require('table');
+const { gray, green } = require('chalk');
 
 const { toBytes32 } = require('../.');
 
+const AddressResolver = artifacts.require('AddressResolver');
+const EtherCollateral = artifacts.require('EtherCollateral');
 const ExchangeRates = artifacts.require('ExchangeRates');
 const FeePool = artifacts.require('FeePool');
 const FeePoolState = artifacts.require('FeePoolState');
 const FeePoolEternalStorage = artifacts.require('FeePoolEternalStorage');
+const IssuanceEternalStorage = artifacts.require('IssuanceEternalStorage');
 const DelegateApprovals = artifacts.require('DelegateApprovals');
 const Synthetix = artifacts.require('Synthetix');
+const Exchanger = artifacts.require('Exchanger');
+const ExchangeState = artifacts.require('ExchangeState');
+const Issuer = artifacts.require('Issuer');
 const SynthetixEscrow = artifacts.require('SynthetixEscrow');
 const RewardEscrow = artifacts.require('RewardEscrow');
 const RewardsDistribution = artifacts.require('RewardsDistribution');
 const SynthetixState = artifacts.require('SynthetixState');
 const SupplySchedule = artifacts.require('SupplySchedule');
 const Synth = artifacts.require('Synth');
+const MultiCollateralSynth = artifacts.require('MultiCollateralSynth');
 const Owned = artifacts.require('Owned');
 const Proxy = artifacts.require('Proxy');
 // const ProxyERC20 = artifacts.require('ProxyERC20');
 const PublicSafeDecimalMath = artifacts.require('PublicSafeDecimalMath');
+const PublicMath = artifacts.require('PublicMath');
 const PurgeableSynth = artifacts.require('PurgeableSynth');
 const SafeDecimalMath = artifacts.require('SafeDecimalMath');
+const MathLib = artifacts.require('Math');
 const TokenState = artifacts.require('TokenState');
 const Depot = artifacts.require('Depot');
 const SelfDestructible = artifacts.require('SelfDestructible');
+const DappMaintenance = artifacts.require('DappMaintenance');
 
 // Update values before deployment
 const ZERO_ADDRESS = '0x' + '0'.repeat(40);
 const SYNTHETIX_TOTAL_SUPPLY = web3.utils.toWei('100000000');
 
 module.exports = async function(deployer, network, accounts) {
-	const [deployerAccount, owner, oracle, fundsWallet, gasLimitOracle] = accounts;
+	const [deployerAccount, owner, oracle, fundsWallet] = accounts;
 
 	// Note: This deployment script is not used on mainnet, it's only for testing deployments.
 
@@ -42,8 +53,15 @@ module.exports = async function(deployer, network, accounts) {
 	// ----------------
 	// Safe Decimal Math library
 	// ----------------
-	console.log('Deploying SafeDecimalMath...');
+	console.log(gray('Deploying SafeDecimalMath...'));
 	await deployer.deploy(SafeDecimalMath, { from: deployerAccount });
+
+	// ----------------
+	// Math library
+	// ----------------
+	console.log(gray('Deploying Math library...'));
+	deployer.link(SafeDecimalMath, MathLib);
+	await deployer.deploy(MathLib, { from: deployerAccount });
 
 	// The PublicSafeDecimalMath contract is not used in a standalone way on mainnet, this is for testing
 	// ----------------
@@ -52,10 +70,24 @@ module.exports = async function(deployer, network, accounts) {
 	deployer.link(SafeDecimalMath, PublicSafeDecimalMath);
 	await deployer.deploy(PublicSafeDecimalMath, { from: deployerAccount });
 
+	// The PublicMath contract is not used in a standalone way on mainnet, this is for testing
+	// ----------------
+	// Public Math Library
+	// ----------------
+	deployer.link(SafeDecimalMath, PublicMath);
+	deployer.link(MathLib, PublicMath);
+	await deployer.deploy(PublicMath, { from: deployerAccount });
+
+	// ----------------
+	// AddressResolver
+	// ----------------
+	console.log(gray('Deploying AddressResolver...'));
+	const resolver = await deployer.deploy(AddressResolver, owner, { from: deployerAccount });
+
 	// ----------------
 	// Exchange Rates
 	// ----------------
-	console.log('Deploying ExchangeRates...');
+	console.log(gray('Deploying ExchangeRates...'));
 	deployer.link(SafeDecimalMath, ExchangeRates);
 	const exchangeRates = await deployer.deploy(
 		ExchangeRates,
@@ -69,12 +101,12 @@ module.exports = async function(deployer, network, accounts) {
 	// ----------------
 	// Escrow
 	// ----------------
-	console.log('Deploying SynthetixEscrow...');
+	console.log(gray('Deploying SynthetixEscrow...'));
 	const escrow = await deployer.deploy(SynthetixEscrow, owner, ZERO_ADDRESS, {
 		from: deployerAccount,
 	});
 
-	console.log('Deploying RewardEscrow...');
+	console.log(gray('Deploying RewardEscrow...'));
 	const rewardEscrow = await deployer.deploy(RewardEscrow, owner, ZERO_ADDRESS, ZERO_ADDRESS, {
 		from: deployerAccount,
 	});
@@ -82,7 +114,7 @@ module.exports = async function(deployer, network, accounts) {
 	// ----------------
 	// Synthetix State
 	// ----------------
-	console.log('Deploying SynthetixState...');
+	console.log(gray('Deploying SynthetixState...'));
 	// constructor(address _owner, address _associatedContract)
 	deployer.link(SafeDecimalMath, SynthetixState);
 	const synthetixState = await deployer.deploy(SynthetixState, owner, ZERO_ADDRESS, {
@@ -92,7 +124,7 @@ module.exports = async function(deployer, network, accounts) {
 	// ----------------
 	// Fee Pool - Delegate Approval
 	// ----------------
-	console.log('Deploying Delegate Approvals...');
+	console.log(gray('Deploying Delegate Approvals...'));
 	const delegateApprovals = await deployer.deploy(DelegateApprovals, owner, ZERO_ADDRESS, {
 		from: deployerAccount,
 	});
@@ -100,36 +132,29 @@ module.exports = async function(deployer, network, accounts) {
 	// ----------------
 	// Fee Pool
 	// ----------------
-	console.log('Deploying FeePoolProxy...');
+	console.log(gray('Deploying FeePoolProxy...'));
 	// constructor(address _owner)
 	const feePoolProxy = await Proxy.new(owner, { from: deployerAccount });
 
-	console.log('Deploying FeePoolState...');
+	console.log(gray('Deploying FeePoolState...'));
 	deployer.link(SafeDecimalMath, FeePoolState);
 	const feePoolState = await deployer.deploy(FeePoolState, owner, ZERO_ADDRESS, {
 		from: deployerAccount,
 	});
 
-	console.log('Deploying FeePoolEternalStorage...');
-	deployer.link(SafeDecimalMath, FeePoolEternalStorage);
+	console.log(gray('Deploying FeePoolEternalStorage...'));
 	const feePoolEternalStorage = await deployer.deploy(FeePoolEternalStorage, owner, ZERO_ADDRESS, {
 		from: deployerAccount,
 	});
 
-	console.log('Deploying FeePool...');
-
+	console.log(gray('Deploying FeePool...'));
 	deployer.link(SafeDecimalMath, FeePool);
 	const feePool = await deployer.deploy(
 		FeePool,
 		feePoolProxy.address,
 		owner,
-		ZERO_ADDRESS,
-		feePoolState.address,
-		feePoolEternalStorage.address,
-		synthetixState.address,
-		rewardEscrow.address,
-		ZERO_ADDRESS,
 		web3.utils.toWei('0.0030', 'ether'),
+		resolver.address,
 		{ from: deployerAccount }
 	);
 
@@ -141,14 +166,13 @@ module.exports = async function(deployer, network, accounts) {
 
 	// Set delegate approval on feePool
 	// Set feePool as associatedContract on delegateApprovals & feePoolEternalStorage
-	await feePool.setDelegateApprovals(delegateApprovals.address, { from: owner });
 	await delegateApprovals.setAssociatedContract(feePool.address, { from: owner });
 	await feePoolEternalStorage.setAssociatedContract(feePool.address, { from: owner });
 
 	// ----------------------
 	// Deploy RewardDistribution
 	// ----------------------
-	console.log('Deploying RewardsDistribution...');
+	console.log(gray('Deploying RewardsDistribution...'));
 	const rewardsDistribution = await deployer.deploy(
 		RewardsDistribution,
 		owner,
@@ -161,47 +185,45 @@ module.exports = async function(deployer, network, accounts) {
 		}
 	);
 
-	// Configure FeePool with the RewardsDistribution contract
-	await feePool.setRewardsAuthority(rewardsDistribution.address, { from: owner });
-
 	// ----------------
 	// Synthetix
 	// ----------------
-	console.log('Deploying SupplySchedule...');
+	console.log(gray('Deploying SupplySchedule...'));
 	// constructor(address _owner)
 	deployer.link(SafeDecimalMath, SupplySchedule);
-	const supplySchedule = await deployer.deploy(SupplySchedule, owner, {
-		from: deployerAccount,
-	});
+	deployer.link(MathLib, SupplySchedule);
 
-	console.log('Deploying SynthetixProxy...');
+	const lastMintEvent = 0; // No mint event, weeksSinceIssuance will use inflation start date
+	const weeksOfRewardSupply = 0;
+	const supplySchedule = await deployer.deploy(
+		SupplySchedule,
+		owner,
+		lastMintEvent,
+		weeksOfRewardSupply,
+		{
+			from: deployerAccount,
+		}
+	);
+
+	console.log(gray('Deploying SynthetixProxy...'));
 	// constructor(address _owner)
 	const synthetixProxy = await Proxy.new(owner, { from: deployerAccount });
 
-	console.log('Deploying SynthetixTokenState...');
+	console.log(gray('Deploying SynthetixTokenState...'));
 	// constructor(address _owner, address _associatedContract)
 	const synthetixTokenState = await TokenState.new(owner, deployerAccount, {
 		from: deployerAccount,
 	});
 
-	console.log('Deploying Synthetix...');
-	// constructor(address _proxy, TokenState _tokenState, Synthetix _synthetixState,
-	//     address _owner, ExchangeRates _exchangeRates, FeePool _feePool
-	// )
+	console.log(gray('Deploying Synthetix...'));
 	deployer.link(SafeDecimalMath, Synthetix);
 	const synthetix = await deployer.deploy(
 		Synthetix,
 		synthetixProxy.address,
 		synthetixTokenState.address,
-		synthetixState.address,
 		owner,
-		ExchangeRates.address,
-		FeePool.address,
-		supplySchedule.address,
-		rewardEscrow.address,
-		escrow.address,
-		rewardsDistribution.address,
 		SYNTHETIX_TOTAL_SUPPLY,
+		resolver.address,
 		{
 			from: deployerAccount,
 			gas: 8000000,
@@ -219,11 +241,6 @@ module.exports = async function(deployer, network, accounts) {
 	await synthetixTokenState.setAssociatedContract(synthetix.address, { from: owner });
 
 	// ----------------------
-	// Connect Synthetix State
-	// ----------------------
-	await synthetixState.setAssociatedContract(synthetix.address, { from: owner });
-
-	// ----------------------
 	// Connect Proxy
 	// ----------------------
 	await synthetixProxy.setTarget(synthetix.address, { from: owner });
@@ -235,14 +252,9 @@ module.exports = async function(deployer, network, accounts) {
 	await rewardEscrow.setSynthetix(synthetix.address, { from: owner });
 
 	// ----------------------
-	// Connect FeePool
+	// Connect SupplySchedule
 	// ----------------------
-	await feePool.setSynthetix(synthetix.address, { from: owner });
-
-	// ----------------------
-	// Connect InflationarySupply
-	// ----------------------
-	await supplySchedule.setSynthetix(synthetix.address, { from: owner });
+	await supplySchedule.setSynthetixProxy(synthetixProxy.address, { from: owner });
 
 	// ----------------------
 	// Connect RewardsDistribution
@@ -250,73 +262,13 @@ module.exports = async function(deployer, network, accounts) {
 	await rewardsDistribution.setAuthority(synthetix.address, { from: owner });
 	await rewardsDistribution.setSynthetixProxy(synthetixProxy.address, { from: owner });
 
-	// ----------------------
-	// Setup Gas Price Limit
-	// ----------------------
-	const gasLimit = web3.utils.toWei('25', 'gwei');
-
-	await synthetix.setGasLimitOracle(gasLimitOracle, { from: owner });
-	await synthetix.setGasPriceLimit(gasLimit, { from: gasLimitOracle });
-
 	// ----------------
 	// Synths
 	// ----------------
-	const currencyKeys = ['XDR', 'sUSD', 'sAUD', 'sEUR', 'sBTC', 'iBTC'];
-	const synths = [];
-
-	deployer.link(SafeDecimalMath, PurgeableSynth);
-
-	for (const currencyKey of currencyKeys) {
-		console.log(`Deploying SynthTokenState for ${currencyKey}...`);
-		const tokenState = await deployer.deploy(TokenState, owner, ZERO_ADDRESS, {
-			from: deployerAccount,
-		});
-
-		console.log(`Deploying SynthProxy for ${currencyKey}...`);
-		const proxy = await deployer.deploy(Proxy, owner, { from: deployerAccount });
-
-		console.log(`Deploying ${currencyKey} Synth...`);
-
-		// constructor(address _proxy, TokenState _tokenState, Synthetix _synthetix, FeePool _feePool,
-		//	string _tokenName, string _tokenSymbol, uint _decimals, address _owner, bytes4 _currencyKey
-		// )
-		const synth = await deployer.deploy(
-			Synth,
-			proxy.address,
-			tokenState.address,
-			synthetixProxy.address,
-			feePoolProxy.address,
-			`Synth ${currencyKey}`,
-			currencyKey,
-			owner,
-			toBytes32(currencyKey),
-			web3.utils.toWei('0'),
-			{ from: deployerAccount }
-		);
-
-		console.log(`Setting associated contract for ${currencyKey} token state...`);
-		await tokenState.setAssociatedContract(synth.address, { from: owner });
-
-		console.log(`Setting proxy target for ${currencyKey} proxy...`);
-		await proxy.setTarget(synth.address, { from: owner });
-
-		// ----------------------
-		// Connect Synthetix to Synth
-		// ----------------------
-		console.log(`Adding ${currencyKey} to Synthetix contract...`);
-		await synthetix.addSynth(synth.address, { from: owner });
-
-		synths.push({
-			currencyKey,
-			tokenState,
-			proxy,
-			synth,
-		});
-	}
-
+	const currencyKeys = ['XDR', 'sUSD', 'sAUD', 'sEUR', 'sBTC', 'iBTC', 'sETH'];
+	// const currencyKeys = ['sUSD', 'sETH'];
 	// Initial prices
 	const { timestamp } = await web3.eth.getBlock('latest');
-	// XDR: 1 USD
 	// sAUD: 0.5 USD
 	// sEUR: 1.25 USD
 	// sBTC: 0.1
@@ -327,39 +279,205 @@ module.exports = async function(deployer, network, accounts) {
 			.filter(currency => currency !== 'sUSD')
 			.concat(['SNX'])
 			.map(toBytes32),
-		['1', '0.5', '1.25', '0.1', '5000', '4000'].map(number => web3.utils.toWei(number, 'ether')),
+		// ['172', '1.20'].map(number =>
+		['5', '0.5', '1.25', '0.1', '5000', '4000', '172'].map(number =>
+			web3.utils.toWei(number, 'ether')
+		),
 		timestamp,
 		{ from: oracle }
 	);
 
+	const synths = [];
+
+	deployer.link(SafeDecimalMath, PurgeableSynth);
+
+	for (const currencyKey of currencyKeys) {
+		console.log(gray(`Deploying SynthTokenState for ${currencyKey}...`));
+		const tokenState = await deployer.deploy(TokenState, owner, ZERO_ADDRESS, {
+			from: deployerAccount,
+		});
+
+		console.log(gray(`Deploying SynthProxy for ${currencyKey}...`));
+		const proxy = await deployer.deploy(Proxy, owner, { from: deployerAccount });
+
+		let SynthSubclass = Synth;
+		// Determine class of Synth
+		if (currencyKey === 'sETH') {
+			SynthSubclass = MultiCollateralSynth;
+		}
+
+		const synthParams = [
+			SynthSubclass,
+			proxy.address,
+			tokenState.address,
+			`Synth ${currencyKey}`,
+			currencyKey,
+			owner,
+			toBytes32(currencyKey),
+			web3.utils.toWei('0'),
+			resolver.address,
+			{ from: deployerAccount },
+		];
+
+		if (currencyKey === 'sETH') {
+			synthParams.splice(synthParams.length - 1, 0, toBytes32('EtherCollateral'));
+		}
+
+		console.log(`Deploying ${currencyKey} Synth...`);
+
+		const synth = await deployer.deploy(...synthParams);
+
+		console.log(gray(`Setting associated contract for ${currencyKey} token state...`));
+		await tokenState.setAssociatedContract(synth.address, { from: owner });
+
+		console.log(gray(`Setting proxy target for ${currencyKey} proxy...`));
+		await proxy.setTarget(synth.address, { from: owner });
+
+		// ----------------------
+		// Connect Synthetix to Synth
+		// ----------------------
+		console.log(gray(`Adding ${currencyKey} to Synthetix contract...`));
+		await synthetix.addSynth(synth.address, { from: owner });
+
+		synths.push({
+			currencyKey,
+			tokenState,
+			proxy,
+			synth,
+		});
+	}
+
 	// --------------------
 	// Depot
 	// --------------------
-	console.log('Deploying Depot...');
-	const sUSDSynth = synths.find(synth => synth.currencyKey === 'sUSD');
+	console.log(gray('Deploying Depot...'));
 	deployer.link(SafeDecimalMath, Depot);
-	await deployer.deploy(
-		Depot,
-		owner,
-		fundsWallet,
-		synthetix.address,
-		sUSDSynth.synth.address,
-		feePool.address,
-		oracle,
-		web3.utils.toWei('500'),
-		web3.utils.toWei('.10'),
-		{ from: deployerAccount }
-	);
+	const depot = await deployer.deploy(Depot, owner, fundsWallet, resolver.address, {
+		from: deployerAccount,
+	});
+
+	// --------------------
+	// EtherCollateral
+	// --------------------
+	console.log('Deploying EtherCollateral...');
+	// Needs the SynthsETH & SynthsUSD in the address resolver
+	const sETHSynth = synths.find(synth => synth.currencyKey === 'sETH');
+	const sUSDSynth = synths.find(synth => synth.currencyKey === 'sUSD');
+	deployer.link(SafeDecimalMath, EtherCollateral);
+	const etherCollateral = await deployer.deploy(EtherCollateral, owner, resolver.address, {
+		from: deployerAccount,
+	});
+
+	// ----------------------
+	// Deploy DappMaintenance
+	// ----------------------
+	console.log(gray('Deploying DappMaintenance...'));
+	await deployer.deploy(DappMaintenance, owner, {
+		from: deployerAccount,
+	});
 
 	// ----------------
 	// Self Destructible
 	// ----------------
-	console.log('Deploying SelfDestructible...');
+	console.log(gray('Deploying SelfDestructible...'));
 	await deployer.deploy(SelfDestructible, owner, { from: deployerAccount });
+
+	// ----------------
+	// Exchanger
+	// ----------------
+	console.log(gray('Deploying Exchanger...'));
+	deployer.link(SafeDecimalMath, Exchanger);
+	const exchanger = await deployer.deploy(Exchanger, owner, resolver.address, {
+		from: deployerAccount,
+	});
+
+	// ----------------
+	// ExchangeState
+	// ----------------
+	console.log(gray('Deploying ExchangeState...'));
+	// deployer.link(SafeDecimalMath, ExchangeState);
+	const exchangeState = await deployer.deploy(ExchangeState, owner, exchanger.address, {
+		from: deployerAccount,
+	});
+
+	// ----------------
+	// Issuer
+	// ----------------
+	console.log(gray('Deploying Issuer...'));
+	deployer.link(SafeDecimalMath, Issuer);
+	const issuer = await deployer.deploy(Issuer, owner, resolver.address, { from: deployerAccount });
+
+	console.log(gray('Deploying IssuanceEternalStorage...'));
+	const issuanceEternalStorage = await deployer.deploy(
+		IssuanceEternalStorage,
+		owner,
+		issuer.address,
+		{
+			from: deployerAccount,
+		}
+	);
+
+	// ----------------------
+	// Connect Synthetix State to the Issuer
+	// ----------------------
+	console.log(gray('Setting associated contract of SynthetixState to Issuer...'));
+	await synthetixState.setAssociatedContract(issuer.address, { from: owner });
+
+	// -----------------
+	// Updating Resolver
+	// -----------------
+	console.log(gray('Adding addresses to Resolver...'));
+	await resolver.importAddresses(
+		[
+			'DelegateApprovals',
+			'Depot',
+			'EtherCollateral',
+			'Exchanger',
+			'ExchangeRates',
+			'ExchangeState',
+			'FeePool',
+			'FeePoolEternalStorage',
+			'FeePoolState',
+			'Issuer',
+			'RewardEscrow',
+			'RewardsDistribution',
+			'SupplySchedule',
+			'Synthetix',
+			'SynthetixEscrow',
+			'SynthetixState',
+			'SynthsETH',
+			'SynthsUSD',
+			'IssuanceEternalStorage',
+		].map(toBytes32),
+		[
+			delegateApprovals.address,
+			depot.address,
+			etherCollateral.address,
+			exchanger.address,
+			exchangeRates.address,
+			exchangeState.address,
+			feePool.address,
+			feePoolEternalStorage.address,
+			feePoolState.address,
+			issuer.address,
+			rewardEscrow.address,
+			rewardsDistribution.address,
+			supplySchedule.address,
+			synthetix.address,
+			escrow.address,
+			synthetixState.address,
+			sETHSynth.synth.address,
+			sUSDSynth.synth.address,
+			issuanceEternalStorage.address,
+		],
+		{ from: owner }
+	);
 
 	const tableData = [
 		['Contract', 'Address'],
-		['Exchange Rates', ExchangeRates.address],
+		['AddressResolver', resolver.address],
+		['EtherCollateral', etherCollateral.address],
+		['Exchange Rates', exchangeRates.address],
 		['Fee Pool', FeePool.address],
 		['Fee Pool Proxy', feePoolProxy.address],
 		['Fee Pool State', feePoolState.address],
@@ -374,7 +492,10 @@ module.exports = async function(deployer, network, accounts) {
 		['Depot', Depot.address],
 		['Owned', Owned.address],
 		['SafeDecimalMath', SafeDecimalMath.address],
+		['DappMaintenance', DappMaintenance.address],
 		['SelfDestructible', SelfDestructible.address],
+		['Issuer', issuer.address],
+		['Issuance Eternal Storage', issuanceEternalStorage.address],
 	];
 
 	for (const synth of synths) {
@@ -384,8 +505,8 @@ module.exports = async function(deployer, network, accounts) {
 	}
 
 	console.log();
+	console.log(gray(table(tableData)));
 	console.log();
-	console.log(' Successfully deployed all contracts:');
+	console.log(green('Successfully deployed all contracts:'));
 	console.log();
-	console.log(table(tableData));
 };

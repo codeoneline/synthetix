@@ -1,4 +1,7 @@
 {
+	"AddressResolver": {
+		"deploy": true
+	},
 	"ArbRewarder": {
 		"deploy": true
 	},
@@ -11,6 +14,15 @@
 	"ExchangeRates": {
 		"deploy": true
 	},
+	"Exchanger": {
+		"deploy": true
+	},
+	"ExchangeState": {
+		"deploy": true
+	},
+	"EtherCollateral": {
+		"deploy": true
+	},
 	"FeePool": {
 		"deploy": true
 	},
@@ -21,6 +33,12 @@
 		"deploy": true
 	},
 	"DelegateApprovals": {
+		"deploy": true
+	},
+	"Issuer": {
+		"deploy": true
+	},
+	"IssuanceEternalStorage": {
 		"deploy": true
 	},
 	"SupplySchedule": {
@@ -39,9 +57,6 @@
 		"deploy": true
 	},
 	"SynthetixState": {
-		"deploy": true
-	},
-	"SynthXDR": {
 		"deploy": true
 	},
 	"SynthsUSD": {
@@ -80,9 +95,6 @@
 	"ProxySynthetix": {
 		"deploy": true
 	},
-	"ProxyXDR": {
-		"deploy": true
-	},
 	"ProxysUSD": {
 		"deploy": true
 	},
@@ -113,10 +125,10 @@
 	"SafeDecimalMath": {
 		"deploy": true
 	},
-	"TokenStateSynthetix": {
+	"Math": {
 		"deploy": true
 	},
-	"TokenStateXDR": {
+	"TokenStateSynthetix": {
 		"deploy": true
 	},
 	"TokenStatesUSD": {

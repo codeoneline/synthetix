@@ -6,10 +6,12 @@ const assert = require('assert');
 
 const Web3 = require('web3');
 
-const { loadCompiledFiles, getLatestSolTimestamp } = require('../../publish/src/solidity');
+const { loadCompiledFiles } = require('../../publish/src/solidity');
 
 const deployCmd = require('../../publish/src/commands/deploy');
 const { buildPath } = deployCmd.DEFAULTS;
+const { loadLocalUsers, isCompileRequired } = require('../utils/localUtils');
+
 const commands = {
 	build: require('../../publish/src/commands/build').build,
 	deploy: deployCmd.deploy,
@@ -22,22 +24,19 @@ const commands = {
 const {
 	SYNTHS_FILENAME,
 	CONFIG_FILENAME,
-	CONTRACTS_FOLDER,
+	DEPLOYMENT_FILENAME,
 } = require('../../publish/src/constants');
+
+const { fastForward } = require('../utils/testUtils');
 
 const snx = require('../..');
 const { toBytes32 } = snx;
 
 // load accounts used by local ganache in keys.json
-const users = Object.entries(
-	JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'keys.json'))).private_keys
-).map(([pub, pri]) => ({
-	public: pub,
-	private: `0x${pri}`,
-}));
+const users = loadLocalUsers();
 
 describe('publish scripts', function() {
-	this.timeout(5e3);
+	this.timeout(30e3);
 	const deploymentPath = path.join(__dirname, '..', '..', 'publish', 'deployed', 'local');
 
 	// track these files to revert them later on
@@ -45,6 +44,7 @@ describe('publish scripts', function() {
 	const synthsJSON = fs.readFileSync(synthsJSONPath);
 	const configJSONPath = path.join(deploymentPath, CONFIG_FILENAME);
 	const configJSON = fs.readFileSync(configJSONPath);
+	const deploymentJSONPath = path.join(deploymentPath, DEPLOYMENT_FILENAME);
 	const logfilePath = path.join(__dirname, 'test.log');
 	const network = 'local';
 	let gasLimit;
@@ -53,16 +53,24 @@ describe('publish scripts', function() {
 	let SNX;
 	let sUSD;
 	let sBTC;
+	let sETH;
 	let web3;
+	let compiledSources;
 
 	const resetConfigAndSynthFiles = () => {
 		// restore the synths and config files for this env (cause removal updated it)
 		fs.writeFileSync(synthsJSONPath, synthsJSON);
 		fs.writeFileSync(configJSONPath, configJSON);
+
+		// and reset the deployment.json to signify new deploy
+		fs.writeFileSync(deploymentJSONPath, JSON.stringify({ targets: {}, sources: {} }));
 	};
 
-	beforeEach(async function() {
+	before(() => {
 		fs.writeFileSync(logfilePath, ''); // reset log file
+	});
+
+	beforeEach(async function() {
 		console.log = (...input) => fs.appendFileSync(logfilePath, input.join(' ') + '\n');
 		accounts = {
 			deployer: users[0],
@@ -70,22 +78,20 @@ describe('publish scripts', function() {
 			second: users[2],
 		};
 
-		// get last modified sol file
-		const latestSolTimestamp = getLatestSolTimestamp(CONTRACTS_FOLDER);
-
 		// get last build
-		const { earliestCompiledTimestamp } = loadCompiledFiles({ buildPath });
+		const { compiled } = loadCompiledFiles({ buildPath });
+		compiledSources = compiled;
 
-		if (latestSolTimestamp > earliestCompiledTimestamp) {
+		if (isCompileRequired()) {
 			console.log('Found source file modified after build. Rebuilding...');
 			this.timeout(60000);
-			await commands.build();
+			await commands.build({ showContractSize: true });
 		} else {
 			console.log('Skipping build as everything up to date');
 		}
 
 		gasLimit = 5000000;
-		[SNX, sUSD, sBTC] = ['SNX', 'sUSD', 'sBTC'].map(toBytes32);
+		[SNX, sUSD, sBTC, sETH] = ['SNX', 'sUSD', 'sBTC', 'sETH'].map(toBytes32);
 		web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'));
 		web3.eth.accounts.wallet.add(accounts.deployer.private);
 		gasPrice = web3.utils.toWei('5', 'gwei');
@@ -102,9 +108,11 @@ describe('publish scripts', function() {
 			let timestamp;
 			let sUSDContract;
 			let sBTCContract;
+			let sETHContract;
 			let FeePool;
+			let Issuer;
 			beforeEach(async function() {
-				this.timeout(60000);
+				this.timeout(90000);
 
 				await commands.deploy({
 					network,
@@ -122,8 +130,10 @@ describe('publish scripts', function() {
 					targets['ProxySynthetix'].address
 				);
 				FeePool = new web3.eth.Contract(sources['FeePool'].abi, targets['ProxyFeePool'].address);
+				Issuer = new web3.eth.Contract(sources['Issuer'].abi, targets['Issuer'].address);
 				sUSDContract = new web3.eth.Contract(sources['Synth'].abi, targets['ProxysUSD'].address);
 				sBTCContract = new web3.eth.Contract(sources['Synth'].abi, targets['ProxysBTC'].address);
+				sETHContract = new web3.eth.Contract(sources['Synth'].abi, targets['ProxysETH'].address);
 				timestamp = (await web3.eth.getBlock('latest')).timestamp;
 			});
 
@@ -400,6 +410,33 @@ describe('publish scripts', function() {
 							const balance = await sUSDContract.methods.balanceOf(accounts.first.public).call();
 							assert.strictEqual(web3.utils.fromWei(balance), '6000', 'Balance should match');
 						});
+						describe('when user1 exchange 1000 sUSD for sETH (the MultiCollateralSynth)', () => {
+							let sETHBalanceAfterExchange;
+							beforeEach(async () => {
+								await Synthetix.methods.exchange(sUSD, web3.utils.toWei('1000'), sETH).send({
+									from: accounts.first.public,
+									gas: gasLimit,
+									gasPrice,
+								});
+								sETHBalanceAfterExchange = await sETHContract.methods
+									.balanceOf(accounts.first.public)
+									.call();
+							});
+							it('then their sUSD balance is 5000', async () => {
+								const balance = await sUSDContract.methods.balanceOf(accounts.first.public).call();
+								assert.strictEqual(web3.utils.fromWei(balance), '5000', 'Balance should match');
+							});
+							it('and their sETH balance is 1000 - the fee', async () => {
+								const expected = await FeePool.methods
+									.amountReceivedFromExchange(web3.utils.toWei('1000'))
+									.call();
+								assert.strictEqual(
+									web3.utils.fromWei(sETHBalanceAfterExchange),
+									web3.utils.fromWei(expected),
+									'Balance should match'
+								);
+							});
+						});
 						describe('when user1 exchange 1000 sUSD for sBTC', () => {
 							let sBTCBalanceAfterExchange;
 							beforeEach(async () => {
@@ -408,15 +445,15 @@ describe('publish scripts', function() {
 									gas: gasLimit,
 									gasPrice,
 								});
+								sBTCBalanceAfterExchange = await sBTCContract.methods
+									.balanceOf(accounts.first.public)
+									.call();
 							});
 							it('then their sUSD balance is 5000', async () => {
 								const balance = await sUSDContract.methods.balanceOf(accounts.first.public).call();
 								assert.strictEqual(web3.utils.fromWei(balance), '5000', 'Balance should match');
 							});
 							it('and their sBTC balance is 1000 - the fee', async () => {
-								sBTCBalanceAfterExchange = await sBTCContract.methods
-									.balanceOf(accounts.first.public)
-									.call();
 								const expected = await FeePool.methods
 									.amountReceivedFromExchange(web3.utils.toWei('1000'))
 									.call();
@@ -428,6 +465,12 @@ describe('publish scripts', function() {
 							});
 							describe('when user1 burns 10 sUSD', () => {
 								beforeEach(async () => {
+									// set minimumStakeTime to 0 seconds for burning
+									await Issuer.methods.setMinimumStakeTime(0).send({
+										from: accounts.deployer.public,
+										gas: gasLimit,
+										gasPrice,
+									});
 									// burn
 									await Synthetix.methods.burnSynths(web3.utils.toWei('10')).send({
 										from: accounts.first.public,
@@ -455,6 +498,8 @@ describe('publish scripts', function() {
 									});
 									describe('and deployer invokes purge', () => {
 										beforeEach(async () => {
+											fastForward(500); // fast forward through waiting period
+
 											await commands.purgeSynths({
 												network,
 												deploymentPath,
@@ -468,9 +513,12 @@ describe('publish scripts', function() {
 											const balance = await sUSDContract.methods
 												.balanceOf(accounts.first.public)
 												.call();
+											const sUSDGainedFromPurge = await FeePool.methods
+												.amountReceivedFromExchange(sBTCBalanceAfterExchange)
+												.call();
 											assert.strictEqual(
 												web3.utils.fromWei(balance),
-												(4990 + +web3.utils.fromWei(sBTCBalanceAfterExchange)).toString(),
+												(4990 + +web3.utils.fromWei(sUSDGainedFromPurge)).toString(),
 												'Balance should match'
 											);
 										});
@@ -708,6 +756,7 @@ describe('publish scripts', function() {
 												});
 											});
 											it('and iBNB should not be frozen', async () => {
+												console.log('HEY----------------------------xxx');
 												await testInvertedSynth({
 													currencyKey: 'iBNB',
 													shouldBeFrozen: false,
@@ -750,6 +799,274 @@ describe('publish scripts', function() {
 									});
 								});
 							});
+						});
+					});
+				});
+			});
+
+			describe('when a pricing aggregator exists', () => {
+				let mockAggregator;
+				beforeEach(async () => {
+					const {
+						abi,
+						evm: {
+							bytecode: { object: bytecode },
+						},
+					} = compiledSources['MockAggregator'];
+
+					const MockAggregator = new web3.eth.Contract(abi);
+					mockAggregator = await MockAggregator.deploy({
+						data: '0x' + bytecode,
+					}).send({
+						from: accounts.deployer.public,
+						gas: gasLimit,
+						gasPrice,
+					});
+				});
+				describe('when Synthetix.totalIssuedSynths is invoked', () => {
+					it('then it reverts as expected as there are no rates', async () => {
+						try {
+							await Synthetix.methods.totalIssuedSynths(sUSD).call();
+							assert.fail('Did not revert while trying to get totalIssuedSynths');
+						} catch (err) {
+							assert.strictEqual(true, /Rates are stale/.test(err.toString()));
+						}
+					});
+				});
+				describe('when one synth is configured to have a pricing aggregator', () => {
+					beforeEach(async () => {
+						const currentSynthsFile = JSON.parse(fs.readFileSync(synthsJSONPath));
+
+						// mutate parameters of sEUR - instructing it to use the aggregator
+						currentSynthsFile.find(({ name }) => name === 'sEUR').aggregator =
+							mockAggregator.options.address;
+
+						fs.writeFileSync(synthsJSONPath, JSON.stringify(currentSynthsFile));
+					});
+					describe('when a deployment with nothing set to deploy fresh is run', () => {
+						let ExchangeRates;
+						beforeEach(async () => {
+							const currentConfigFile = JSON.parse(fs.readFileSync(configJSONPath));
+							const configForExrates = Object.keys(currentConfigFile).reduce((memo, cur) => {
+								memo[cur] = { deploy: false };
+								return memo;
+							}, {});
+
+							fs.writeFileSync(configJSONPath, JSON.stringify(configForExrates));
+
+							this.timeout(60000);
+
+							await commands.deploy({
+								network,
+								deploymentPath,
+								yes: true,
+								privateKey: accounts.deployer.private,
+							});
+
+							ExchangeRates = new web3.eth.Contract(
+								sources['ExchangeRates'].abi,
+								snx.getTarget({ network, contract: 'ExchangeRates' }).address
+							);
+						});
+						it('then the aggregator must be set for the sEUR price', async () => {
+							const sEURAggregator = await ExchangeRates.methods
+								.aggregators(toBytes32('sEUR'))
+								.call();
+							assert.strictEqual(sEURAggregator, mockAggregator.options.address);
+						});
+
+						describe('when ExchangeRates has rates for all synths except the aggregated synth sEUR', () => {
+							beforeEach(async () => {
+								const ExchangeRates = new web3.eth.Contract(
+									sources['ExchangeRates'].abi,
+									targets['ExchangeRates'].address
+								);
+								// update rates
+								const synthsToUpdate = synths.filter(({ name }) => name !== 'sEUR');
+
+								await ExchangeRates.methods
+									.updateRates(
+										synthsToUpdate.map(({ name }) => toBytes32(name)),
+										synthsToUpdate.map(() => web3.utils.toWei('1')),
+										timestamp
+									)
+									.send({
+										from: accounts.deployer.public,
+										gas: gasLimit,
+										gasPrice,
+									});
+							});
+							describe('when Synthetix.totalIssuedSynths is invoked', () => {
+								it('then it reverts as expected as there is no rate for sEUR', async () => {
+									try {
+										await Synthetix.methods.totalIssuedSynths(sUSD).call();
+										assert.fail('Did not revert while trying to get totalIssuedSynths');
+									} catch (err) {
+										assert.strictEqual(true, /Rates are stale/.test(err.toString()));
+									}
+								});
+							});
+
+							describe('when the aggregator has a price', () => {
+								const rate = '1.15';
+								let newTs;
+								beforeEach(async () => {
+									newTs = timestamp + 300;
+									await mockAggregator.methods
+										.setLatestAnswer((rate * 1e8).toFixed(0), newTs)
+										.send({
+											from: accounts.deployer.public,
+											gas: gasLimit,
+											gasPrice,
+										});
+								});
+								describe('then the price from exchange rates for that currency key uses the aggregator', () => {
+									it('correctly', async () => {
+										const response = await ExchangeRates.methods
+											.rateForCurrency(toBytes32('sEUR'))
+											.call();
+										assert.strictEqual(web3.utils.fromWei(response), rate);
+									});
+								});
+
+								describe('when Synthetix.totalIssuedSynths is invoked', () => {
+									it('then it returns some number successfully as no rates are stale', async () => {
+										const response = await Synthetix.methods.totalIssuedSynths(sUSD).call();
+										assert.strictEqual(Number(response) >= 0, true);
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+
+			describe('AddressResolver consolidation', () => {
+				describe('when the AddressResolver is set to deploy and everything else false', () => {
+					beforeEach(async () => {
+						const currentConfigFile = JSON.parse(fs.readFileSync(configJSONPath));
+						const configForAddressResolver = Object.keys(currentConfigFile).reduce((memo, cur) => {
+							memo[cur] = { deploy: cur === 'AddressResolver' };
+							return memo;
+						}, {});
+
+						fs.writeFileSync(configJSONPath, JSON.stringify(configForAddressResolver));
+					});
+					describe('when re-deployed', () => {
+						let AddressResolver;
+						beforeEach(async () => {
+							this.timeout(60000);
+
+							await commands.deploy({
+								network,
+								deploymentPath,
+								yes: true,
+								privateKey: accounts.deployer.private,
+							});
+							AddressResolver = new web3.eth.Contract(
+								sources['AddressResolver'].abi,
+								snx.getTarget({ network, contract: 'AddressResolver' }).address
+							);
+						});
+						it('then all contracts with a resolver() have the new one set', async () => {
+							const targets = snx.getTarget({ network });
+
+							const resolvers = await Promise.all(
+								Object.entries(targets)
+									.filter(([, { source }]) =>
+										sources[source].abi.find(({ name }) => name === 'resolver')
+									)
+									.map(([contractName, { source, address }]) => {
+										const Contract = new web3.eth.Contract(sources[source].abi, address);
+										return Contract.methods.resolver().call();
+									})
+							);
+
+							// at least all synths require a resolver
+							assert.ok(resolvers.length > synths.length);
+
+							for (const res of resolvers) {
+								assert.strictEqual(res, AddressResolver.options.address);
+							}
+						});
+						it('and the resolver has all the addresses inside', async () => {
+							const targets = snx.getTarget({ network });
+
+							const responses = await Promise.all(
+								[
+									'DelegateApprovals',
+									'Depot',
+									'EtherCollateral',
+									'Exchanger',
+									'ExchangeRates',
+									'ExchangeState',
+									'FeePool',
+									'FeePoolEternalStorage',
+									'FeePoolState',
+									'Issuer',
+									'RewardEscrow',
+									'RewardsDistribution',
+									'SupplySchedule',
+									'Synthetix',
+									'SynthetixEscrow',
+									'SynthetixState',
+									'SynthsUSD',
+									'SynthsETH',
+								].map(contractName =>
+									AddressResolver.methods
+										.getAddress(snx.toBytes32(contractName))
+										.call()
+										.then(found => ({ contractName, ok: found === targets[contractName].address }))
+								)
+							);
+
+							for (const { contractName, ok } of responses) {
+								assert.ok(ok, `${contractName} incorrect in resolver`);
+							}
+						});
+					});
+				});
+				describe('when Exchanger is marked to deploy, and everything else false', () => {
+					beforeEach(async () => {
+						const currentConfigFile = JSON.parse(fs.readFileSync(configJSONPath));
+						const configForExchanger = Object.keys(currentConfigFile).reduce((memo, cur) => {
+							memo[cur] = { deploy: cur === 'Exchanger' };
+							return memo;
+						}, {});
+
+						fs.writeFileSync(configJSONPath, JSON.stringify(configForExchanger));
+					});
+					describe('when re-deployed', () => {
+						let AddressResolver;
+						beforeEach(async () => {
+							AddressResolver = new web3.eth.Contract(
+								sources['AddressResolver'].abi,
+								targets['AddressResolver'].address
+							);
+
+							const existingExchanger = await AddressResolver.methods
+								.getAddress(snx.toBytes32('Exchanger'))
+								.call();
+
+							assert.strictEqual(existingExchanger, targets['Exchanger'].address);
+
+							this.timeout(60000);
+
+							await commands.deploy({
+								network,
+								deploymentPath,
+								yes: true,
+								privateKey: accounts.deployer.private,
+							});
+						});
+						it('then the address resolver has the new Exchanger added to it', async () => {
+							const targets = snx.getTarget({ network });
+
+							const actualExchanger = await AddressResolver.methods
+								.getAddress(snx.toBytes32('Exchanger'))
+								.call();
+
+							assert.strictEqual(actualExchanger, targets['Exchanger'].address);
 						});
 					});
 				});

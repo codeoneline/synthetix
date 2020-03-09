@@ -38,6 +38,7 @@ class Deployer {
 		this.web3.eth.defaultAccount = this.web3.eth.accounts.wallet[0].address;
 		this.account = this.web3.eth.defaultAccount;
 		this.deployedContracts = {};
+		this._dryRunCounter = 0;
 	}
 
 	sendParameters(type = 'method-call') {
@@ -48,7 +49,7 @@ class Deployer {
 		};
 	}
 
-	async deploy({ name, source, args = [], deps = [], force = false }) {
+	async deploy({ name, source, args = [], deps = [], force = false, dryRun = false }) {
 		if (!this.config[name] && !force) {
 			console.log(yellow(`Skipping ${name} as it is NOT in contract flags file for deployment.`));
 			return;
@@ -77,13 +78,15 @@ class Deployer {
 		// Any contract after SafeDecimalMath can automatically get linked.
 		// Doing this with bytecode that doesn't require the library is a no-op.
 		let bytecode = compiled.evm.bytecode.object;
-		if (this.deployedContracts.SafeDecimalMath) {
-			bytecode = linker.linkBytecode(bytecode, {
-				[source + '.sol']: {
-					SafeDecimalMath: this.deployedContracts.SafeDecimalMath.options.address,
-				},
-			});
-		}
+		['SafeDecimalMath', 'Math'].forEach(contractName => {
+			if (this.deployedContracts[contractName]) {
+				bytecode = linker.linkBytecode(bytecode, {
+					[source + '.sol']: {
+						[contractName]: this.deployedContracts[contractName].options.address,
+					},
+				});
+			}
+		});
 
 		compiled.evm.bytecode.linkedObject = bytecode;
 
@@ -92,15 +95,36 @@ class Deployer {
 		if (deploy) {
 			console.log(gray(` - Attempting to deploy ${name}`));
 
-			const newContract = new this.web3.eth.Contract(compiled.abi);
-			deployedContract = await newContract
-				.deploy({
-					data: '0x' + bytecode,
-					arguments: args,
-				})
-				.send(this.sendParameters('contract-deployment'));
+			if (dryRun) {
+				this._dryRunCounter++;
+				// use the existing version of a contract in a dry run
+				deployedContract = this.getContract({ abi: compiled.abi, address: existingAddress });
+				const { account } = this;
+				// but stub out all method calls except owner because it is needed to
+				// determine which actions can be performed directly or need to be added to ownerActions
+				Object.keys(deployedContract.methods).forEach(key => {
+					deployedContract.methods[key] = () => ({
+						call: () => (key === 'owner' ? Promise.resolve(account) : undefined),
+					});
+				});
+				deployedContract.options.address = '0x' + this._dryRunCounter.toString().padStart(40, '0');
+			} else {
+				const newContract = new this.web3.eth.Contract(compiled.abi);
+				deployedContract = await newContract
+					.deploy({
+						data: '0x' + bytecode,
+						arguments: args,
+					})
+					.send(this.sendParameters('contract-deployment'));
+			}
 			deployedContract.options.deployed = true; // indicate a fresh deployment occurred
-			console.log(green(` - Deployed ${name} to ${deployedContract.options.address}`));
+			console.log(
+				green(
+					`${dryRun ? '[DRY RUN] - Simulated deployment of' : '- Deployed'} ${name} to ${
+						deployedContract.options.address
+					}`
+				)
+			);
 		} else if (existingAddress) {
 			deployedContract = this.getContract({ abi: compiled.abi, address: existingAddress });
 			console.log(gray(` - Reusing instance of ${name} at ${existingAddress}`));
@@ -110,6 +134,7 @@ class Deployer {
 			);
 		}
 
+		// append new deployedContract
 		this.deployedContracts[name] = deployedContract;
 
 		return deployedContract;

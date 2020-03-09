@@ -1,12 +1,5 @@
 [
 	{
-		"name": "XDR",
-		"asset": "",
-		"category": "internal",
-		"sign": "",
-		"desc": "Synthetix Drawing Rights"
-	},
-	{
 		"name": "sEUR",
 		"asset": "EUR",
 		"category": "forex",
@@ -75,7 +68,8 @@
 		"asset": "ETH",
 		"category": "crypto",
 		"sign": "Ξ",
-		"desc": "Ether"
+		"desc": "Ether",
+		"subclass": "MultiCollateralSynth"
 	},
 	{
 		"name": "sBNB",

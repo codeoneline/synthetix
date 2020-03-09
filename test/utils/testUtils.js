@@ -1,8 +1,20 @@
 const BN = require('bn.js');
 
-const ZERO_ADDRESS = '0x' + '0'.repeat(40);
-const UNIT = web3.utils.toWei(new BN('1'), 'ether');
+const { toBN, toWei, fromWei, hexToAscii } = require('web3-utils');
+const UNIT = toWei(new BN('1'), 'ether');
 
+const Web3 = require('web3');
+// web3 is injected to the global scope via truffle test, but
+// we need this here for test/publish which bypasses truffle altogether.
+// Note: providing the connection string 'http://127.0.0.1:8545' seems to break
+// RewardEscrow Stress Tests - it is not clear why however.
+if (typeof web3 === 'undefined') {
+	global.web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545'));
+}
+
+const ZERO_ADDRESS = '0x' + '0'.repeat(40);
+
+const { toBytes32 } = require('../../.');
 /**
  * Sets default properties on the jsonrpc object and promisifies it so we don't have to copy/paste everywhere.
  */
@@ -102,8 +114,8 @@ const restoreSnapshot = async id => {
  *  we should be able to update the conversion factor here.
  *  @param amount The amount you want to re-base to UNIT
  */
-const toUnit = amount => web3.utils.toBN(web3.utils.toWei(amount.toString(), 'ether'));
-const fromUnit = amount => web3.utils.fromWei(amount, 'ether');
+const toUnit = amount => toBN(toWei(amount.toString(), 'ether'));
+const fromUnit = amount => fromWei(amount, 'ether');
 
 /**
  *  Translates an amount to our cononical precise unit. We happen to use 10^27, which means we can
@@ -112,7 +124,7 @@ const fromUnit = amount => web3.utils.fromWei(amount, 'ether');
  *  @param amount The amount you want to re-base to PRECISE_UNIT
  */
 const PRECISE_UNIT_STRING = '1000000000000000000000000000';
-const PRECISE_UNIT = web3.utils.toBN(PRECISE_UNIT_STRING);
+const PRECISE_UNIT = toBN(PRECISE_UNIT_STRING);
 
 const toPreciseUnit = amount => {
 	// Code is largely lifted from the guts of web3 toWei here:
@@ -207,6 +219,22 @@ const divideDecimal = (x, y, unit = UNIT) => {
 	return xBN.mul(unit).div(yBN);
 };
 
+/*
+ * Exponentiation by squares of x^n, interpreting them as fixed point decimal numbers.
+ */
+const powerToDecimal = (x, n, unit = UNIT) => {
+	let xBN = BN.isBN(x) ? x : new BN(x);
+	let temp = unit;
+	while (n > 0) {
+		if (n % 2 !== 0) {
+			temp = temp.mul(xBN).div(unit);
+		}
+		xBN = xBN.mul(xBN).div(unit);
+		n = parseInt(n / 2);
+	}
+	return temp;
+};
+
 /**
  *  Convenience method to assert that an event matches a shape
  *  @param actualEventOrTransaction The transaction receipt, or event as returned in the event logs from web3
@@ -235,7 +263,7 @@ const assertEventEqual = (actualEventOrTransaction, expectedEvent, expectedArgs)
  * Converts a hex string of bytes into a UTF8 string with \0 characters (from padding) removed
  */
 const bytesToString = bytes => {
-	const result = web3.utils.hexToAscii(bytes);
+	const result = hexToAscii(bytes);
 	return result.replace(/\0/g, '');
 };
 
@@ -334,7 +362,7 @@ const assertDeepEqual = (actual, expected, context) => {
  *  @param expectedUnit The unit you expect e.g. 'gwei'. Defaults to 'ether'
  */
 const assertUnitEqual = (actualWei, expectedAmount, expectedUnit = 'ether') => {
-	assertBNEqual(actualWei, web3.utils.toWei(expectedAmount, expectedUnit));
+	assertBNEqual(actualWei, toWei(expectedAmount, expectedUnit));
 };
 
 /**
@@ -344,16 +372,25 @@ const assertUnitEqual = (actualWei, expectedAmount, expectedUnit = 'ether') => {
  *  @param expectedUnit The unit you expect e.g. 'gwei'. Defaults to 'ether'
  */
 const assertUnitNotEqual = (actualWei, expectedAmount, expectedUnit = 'ether') => {
-	assertBNNotEqual(actualWei, web3.utils.toWei(expectedAmount, expectedUnit));
+	assertBNNotEqual(actualWei, toWei(expectedAmount, expectedUnit));
 };
 
-const assertRevert = async blockOrPromise => {
+/**
+ * Convenience method to assert that the return of the given block when invoked or promise causes a
+ * revert to occur, with an optional revert message.
+ * @param blockOrPromise The JS block (i.e. function that when invoked returns a promise) or a promise itself
+ * @param reason Optional reason string to search for in revert message
+ */
+const assertRevert = async (blockOrPromise, reason) => {
 	let errorCaught = false;
 	try {
 		const result = typeof blockOrPromise === 'function' ? blockOrPromise() : blockOrPromise;
 		await result;
 	} catch (error) {
 		assert.include(error.message, 'revert');
+		if (reason) {
+			assert.include(error.message, reason);
+		}
 		errorCaught = true;
 	}
 
@@ -379,6 +416,19 @@ const assertInvalidOpcode = async blockOrPromise => {
  */
 const getEthBalance = account => web3.eth.getBalance(account);
 
+const [SNX, sUSD, sAUD, sEUR, sBTC, iBTC, sETH, ETH] = [
+	'SNX',
+	'sUSD',
+	'sAUD',
+	'sEUR',
+	'sBTC',
+	'iBTC',
+	'sETH',
+	'ETH',
+].map(toBytes32);
+
+const defaultCurrencyKeys = [SNX, sUSD, sAUD, sEUR, sBTC, iBTC, sETH, ETH];
+
 module.exports = {
 	ZERO_ADDRESS,
 
@@ -390,6 +440,7 @@ module.exports = {
 	currentTime,
 	multiplyDecimal,
 	divideDecimal,
+	powerToDecimal,
 
 	toUnit,
 	fromUnit,
@@ -410,4 +461,6 @@ module.exports = {
 
 	getEthBalance,
 	bytesToString,
+
+	defaultCurrencyKeys,
 };

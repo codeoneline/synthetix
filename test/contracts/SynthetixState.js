@@ -1,6 +1,9 @@
+require('.'); // import common test scaffolding
+
 const Synthetix = artifacts.require('Synthetix');
 const SynthetixState = artifacts.require('SynthetixState');
 const Synth = artifacts.require('Synth');
+const Issuer = artifacts.require('Issuer');
 
 const { toUnit } = require('../utils/testUtils');
 const { toBytes32 } = require('../..');
@@ -10,15 +13,19 @@ contract('SynthetixState', async accounts => {
 
 	const [deployerAccount, owner, account1, account2] = accounts;
 
-	let synthetix, synthetixState, sUSDContract;
+	let synthetix, synthetixState, sUSDContract, issuer;
 
 	beforeEach(async () => {
 		// Save ourselves from having to await deployed() in every single test.
 		// We do this in a beforeEach instead of before to ensure we isolate
 		// contract interfaces to prevent test bleed.
 		synthetix = await Synthetix.deployed();
-		synthetixState = await SynthetixState.at(await synthetix.synthetixState());
+		synthetixState = await SynthetixState.deployed();
+		issuer = await Issuer.deployed();
 		sUSDContract = await Synth.at(await synthetix.synths(sUSD));
+
+		// set minimumStakeTime on issue and burning to 0
+		await issuer.setMinimumStakeTime(0, { from: owner });
 	});
 
 	it('should set constructor params on deployment', async () => {
