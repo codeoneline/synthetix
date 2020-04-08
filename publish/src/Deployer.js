@@ -111,6 +111,7 @@ class Deployer {
 				deployedContract.options.address = '0x' + this._dryRunCounter.toString().padStart(40, '0');
 			} else {
 				const newContract = new this.web3.eth.Contract(compiled.abi);
+				console.log('contract size=' + bytecode.length);
 				deployedContract = await newContract
 					.deploy({
 						data: '0x' + bytecode,

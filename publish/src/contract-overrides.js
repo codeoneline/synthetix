@@ -7,4 +7,7 @@ module.exports = {
 	'FeePool.sol': {
 		runs: 1500,
 	},
+	'Synthetix.sol': {
+		runs: 0,
+	},
 };

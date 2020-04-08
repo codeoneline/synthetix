@@ -43,6 +43,9 @@ const build = async ({
 	showWarnings,
 	showContractSize,
 } = {}) => {
+	if (typeof optimizerRuns === 'string') {
+		optimizerRuns = parseInt(optimizerRuns);
+	}
 	console.log(gray('Starting build...'));
 
 	if (!fs.existsSync(buildPath)) {
