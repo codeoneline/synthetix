@@ -1,0 +1,145 @@
+contract ENSResolver
+  function addr(bytes32 node) public view returns (address);
+
+library SafeMath
+  mul
+  div
+
+library Buffer
+  struct buffer {
+    bytes buf;
+    uint capacity;
+
+library CBOR {  //as CBOR_Chainlink
+  using Buffer for Buffer.buffer;  //as Buffer_Chainlink
+
+library Chainlink
+  using CBOR_Chainlink for Buffer_Chainlink.buffer;
+  function initialize(
+    Request memory self,
+    bytes32 _id,
+    address _callbackAddress,
+    bytes4 _callbackFunction
+  struct Request {
+    bytes32 id;
+    address callbackAddress;
+    bytes4 callbackFunctionId;
+    uint256 nonce;
+    Buffer_Chainlink.buffer buf;
+
+interface OracleInterface
+  function fulfillOracleRequest(
+    bytes32 requestId,    ////////////111
+    uint256 payment,
+    address callbackAddress,
+    bytes4 callbackFunctionId,
+    uint256 expiration,   //////////111
+    bytes32 data
+  ) external returns (bool);
+  function getAuthorizationStatus(address node) external view returns (bool);
+  function setFulfillmentPermission(address node, bool allowed) external;
+  function withdraw(address recipient, uint256 amount) external;
+  function withdrawable() external view returns (uint256);
+
+interface PointerInterface
+  function getAddress() external view returns (address);
+
+interface ChainlinkRequestInterface
+  function oracleRequest(
+    address sender,     ////////////222
+    uint256 payment,
+    bytes32 id,         //////////222
+    address callbackAddress,
+    bytes4 callbackFunctionId,
+    uint256 nonce,      //////////222
+    uint256 version,    //////////222
+    bytes data
+  ) external;
+  function cancelOracleRequest(
+    bytes32 requestId,    ///////////111
+    uint256 payment,
+    bytes4 callbackFunctionId,
+    uint256 expiration    //////////111
+  ) external;
+
+Oracle is ChainlinkRequestInterface, OracleInterface, Ownable
+
+interface AggregatorInterface {
+  function latestAnswer() external view returns (int256);
+  function latestTimestamp() external view returns (uint256);
+  function latestRound() external view returns (uint256);
+  function getAnswer(uint256 roundId) external view returns (int256);
+  function getTimestamp(uint256 roundId) external view returns (uint256);
+
+  event AnswerUpdated(int256 indexed current, uint256 indexed roundId, uint256 timestamp);
+  event NewRound(uint256 indexed roundId, address indexed startedBy);
+
+interface LinkTokenInterface
+  function allowance(address owner, address spender) external view returns (uint256 remaining);
+  function approve(address spender, uint256 value) external returns (bool success);
+  function balanceOf(address owner) external view returns (uint256 balance);
+   function decimals() external view returns (uint8 decimalPlaces);
+   function decreaseApproval(address spender, uint256 addedValue) external returns (bool success);
+   function increaseApproval(address spender, uint256 subtractedValue) external;
+   function name() external view returns (string tokenName);
+   function symbol() external view returns (string tokenSymbol);
+  function totalSupply() external view returns (uint256 totalTokensIssued);
+  function transfer(address to, uint256 value) external returns (bool success);
+  function transferAndCall(address to, uint256 value, bytes data) external returns (bool success);
+  function transferFrom(address from, address to, uint256 value) external returns (bool success);
+
+
+contract ERC20Basic { as linkERC20Basic
+  uint256 public totalSupply;
+  function balanceOf(address who) constant returns (uint256);
+  function transfer(address to, uint256 value) returns (bool);
+  event Transfer(address indexed from, address indexed to, uint256 value);
+
+contract ERC20 is linkERC20Basic { as linkERC20
+  function allowance(address owner, address spender) constant returns (uint256);
+  function transferFrom(address from, address to, uint256 value) returns (bool);
+  function approve(address spender, uint256 value) returns (bool);
+  event Approval(address indexed owner, address indexed spender, uint256 value);
+
+contract ERC677 is linkERC20 {
+  function transferAndCall(address to, uint value, bytes data) returns (bool success);
+  event Transfer(address indexed from, address indexed to, uint value, bytes data);
+
+contract ERC677Receiver {
+  function onTokenTransfer(address _sender, uint _value, bytes _data);
+
+interface ENSInterface
+  event NewOwner(bytes32 indexed node, bytes32 indexed label, address owner);
+  event Transfer(bytes32 indexed node, address owner);
+  event NewResolver(bytes32 indexed node, address resolver);
+  event NewTTL(bytes32 indexed node, uint64 ttl);
+  function setSubnodeOwner(bytes32 node, bytes32 label, address owner) external;
+  function setResolver(bytes32 node, address resolver) external;
+  function setOwner(bytes32 node, address owner) external;
+  function setTTL(bytes32 node, uint64 ttl) external;
+  function owner(bytes32 node) external view returns (address);
+  function resolver(bytes32 node) external view returns (address);
+  function ttl(bytes32 node) external view returns (uint64);
+
+contract ChainlinkClient
+  using Chainlink for Chainlink.Request;
+  using SafeMath_Chainlink for uint256;
+  bytes32 constant private ENS_TOKEN_SUBNAME = keccak256("link");
+  bytes32 constant private ENS_ORACLE_SUBNAME = keccak256("oracle");
+  address constant private LINK_TOKEN_POINTER = 0xC89bD4E1632D3A43CB03AAAd5262cbe4038Bc571;
+  ENSInterface private ens;
+  LinkTokenInterface private link;
+
+  mapping(bytes32 => address) private pendingRequests;
+  event ChainlinkRequested(bytes32 indexed id);
+  event ChainlinkFulfilled(bytes32 indexed id);
+  event ChainlinkCancelled(bytes32 indexed id);
+  LinkTokenInterface private link;
+  ChainlinkRequestInterface private oracle;
+
+  //////////internal
+  function buildChainlinkRequest(bytes32 _specId, address _callbackAddress, bytes4 _callbackFunctionSignature
+  function sendChainlinkRequest(Chainlink.Request memory _req, uint256 _payment)
+  function sendChainlinkRequestTo(address _oracle, Chainlink.Request memory _req, uint256 _payment)
+  function cancelChainlinkRequest(
+  function setChainlinkOracle(address _oracle) internal {

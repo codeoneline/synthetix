@@ -1,0 +1,880 @@
+jsw@pc:~/code/my/synthetix$ npx truffle migrate --network wan
+
+Compiling your contracts...
+===========================
+> Everything is up to date, there is nothing to compile.
+
+
+
+Starting migrations...
+======================
+> Network name:    'wan'
+> Network id:      6
+> Block gas limit: 0x989680
+
+
+2_deploy_synthetix_system.js
+============================
+0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+0xf881F536459cA91431EE376fd096b35b998Da30f
+0x941C3f932182DFA95a30dc5859c062D4FF8E6859
+0xD80d44DcCeFa4E9aEDA1eE4254af8301236b8DFB
+
+   Deploying 'Owned'
+   -----------------
+   > transaction hash:    0xf9667e4fcc8185d17b731952d519053cd6910f8ab410ee0de341613a07bd536d
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xeaaeFc601693d117E8f8881b4BBa90EfDAba1e6b
+   > block number:        628
+   > block timestamp:     1586694250
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699995.47565534
+   > gas used:            308821
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.05558778 ETH
+
+Deploying SafeDecimalMath...
+
+   Deploying 'SafeDecimalMath'
+   ---------------------------
+   > transaction hash:    0xe8aa990a3a4abc12f3045da30872c228c7b9b8f2888f2f29e0dd9772b9343131
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xD2dFeb826630c923Be5311D932DA26B48CF16D47
+   > block number:        629
+   > block timestamp:     1586694255
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699995.44983416
+   > gas used:            143451
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.02582118 ETH
+
+Deploying Math library...
+
+   Deploying 'Math'
+   ----------------
+   > transaction hash:    0x1f374026a0273bbfca14b13230461562d105354f4282fedea830cfb6826ab2b0
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x39544629B20485590288025C65726932EB78DDaa
+   > block number:        630
+   > block timestamp:     1586694260
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699995.43637952
+   > gas used:            74748
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.01345464 ETH
+
+
+   Linking
+   -------
+   * Contract: PublicSafeDecimalMath <--> Library: SafeDecimalMath (at address: 0xD2dFeb826630c923Be5311D932DA26B48CF16D47)
+
+   Deploying 'PublicSafeDecimalMath'
+   ---------------------------------
+   > transaction hash:    0x9b705d3433cf3d1e0e8942488e81f04d5f47d1e9cfb71f4c078ea6673d879ed7
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xb970FAb38536ca88BA20E5EF27BfCdB6d5e4b06C
+   > block number:        631
+   > block timestamp:     1586694265
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699995.36861906
+   > gas used:            376447
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.06776046 ETH
+
+
+   Linking
+   -------
+   * Contract: PublicMath <--> Library: SafeDecimalMath (at address: 0xD2dFeb826630c923Be5311D932DA26B48CF16D47)
+
+   Linking
+   -------
+   * Contract: PublicMath <--> Library: Math (at address: 0x39544629B20485590288025C65726932EB78DDaa)
+
+   Deploying 'PublicMath'
+   ----------------------
+   > transaction hash:    0xf6eeb1994e89fe78eb55e9cb49fd645060d956e3ba910f216e9ad3f98148c586
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x7452bCD07fc6bb75653DE9d9459BD442AC3F5C52
+   > block number:        632
+   > block timestamp:     1586694270
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699995.33575916
+   > gas used:            182555
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.0328599 ETH
+
+Deploying AddressResolver...
+
+   Deploying 'AddressResolver'
+   ---------------------------
+   > transaction hash:    0xd40cd1d05002f3fd534a1b5bab0b31a3d96991d77188228d71fdde4eb4bd5341
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xf525DA97D3Ee531f8cBe6c60A62bA2baf75752E1
+   > block number:        633
+   > block timestamp:     1586694275
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699995.23775852
+   > gas used:            544448
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.09800064 ETH
+
+Deploying SystemStatus...
+
+   Deploying 'SystemStatus'
+   ------------------------
+   > transaction hash:    0xc7d4e0845a99f506a4bb2e58e78935b0ba6bb93c4054da358612dc97760795ae
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xAC21C98DBFE9EA2Fba085B7E594608C602d01cbD
+   > block number:        634
+   > block timestamp:     1586694280
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699994.94638748
+   > gas used:            1618728
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.29137104 ETH
+
+Deploying ExchangeRates...
+
+   Linking
+   -------
+   * Contract: ExchangeRates <--> Library: SafeDecimalMath (at address: 0xD2dFeb826630c923Be5311D932DA26B48CF16D47)
+
+   Deploying 'ExchangeRates'
+   -------------------------
+   > transaction hash:    0x40d8708c1319b04624681e70369b1072d38e9a97b7ff009cf2f64c1c53aafcf1
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x761C2B158FB68e7c2B1a22aBE15F06E54C55D5D3
+   > block number:        635
+   > block timestamp:     1586694285
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699994.3397153
+   > gas used:            3370401
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.60667218 ETH
+
+Deploying SynthetixEscrow...
+
+   Deploying 'SynthetixEscrow'
+   ---------------------------
+   > transaction hash:    0x4f505dcc0ba283a7356750a8ce7eae3cb9db95973ba2cbe87a0c115ff7c56e81
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xcfd663CF68BBDA7ea22c91978eA02d32B7Ec6756
+   > block number:        636
+   > block timestamp:     1586694290
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699994.0636412
+   > gas used:            1533745
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.2760741 ETH
+
+Deploying RewardEscrow...
+
+   Deploying 'RewardEscrow'
+   ------------------------
+   > transaction hash:    0x3390ea491a84c1437926038f0056904c49039b26f278c8e6eb5db5fd7cbdce08
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xa81A2947240BfD4F42D6770725EDA8Ab51eeCb3c
+   > block number:        637
+   > block timestamp:     1586694295
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699993.81643676
+   > gas used:            1373358
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.24720444 ETH
+
+Deploying SynthetixState...
+
+   Linking
+   -------
+   * Contract: SynthetixState <--> Library: SafeDecimalMath (at address: 0xD2dFeb826630c923Be5311D932DA26B48CF16D47)
+
+   Deploying 'SynthetixState'
+   --------------------------
+   > transaction hash:    0xad2d5ef99cf370a98895dde826644f0a6e3ddc8514bf1acad4c12029eeb9f482
+   > Blocks: 1            Seconds: 4
+   > contract address:    0x40B679EA219DB003B7ab7393EF89aF671c79BeED
+   > block number:        638
+   > block timestamp:     1586694300
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699993.62913416
+   > gas used:            1040570
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.1873026 ETH
+
+Deploying Delegate Approvals EternalStorage...
+
+   Deploying 'EternalStorage'
+   --------------------------
+   > transaction hash:    0x79357a90aca3130da996e93246614a74a187e6560078b111acbbc191cf1331f4
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x93098cf108F50E4cDeB868526DA18B88a878d753
+   > block number:        639
+   > block timestamp:     1586694305
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699993.39595226
+   > gas used:            1295455
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.2331819 ETH
+
+Deploying Delegate Approvals...
+
+   Deploying 'DelegateApprovals'
+   -----------------------------
+   > transaction hash:    0xe3125283867e92e6f88ba7e47149dd7fe9b7f73e2199a5a84289e2f89202378b
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xE6528cDF4DEF45a0eaFA6cb4Ea1e2D60CC82B6CD
+   > block number:        640
+   > block timestamp:     1586694310
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699993.16963988
+   > gas used:            1257291
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.22631238 ETH
+
+Deploying FeePoolProxy...
+Deploying FeePoolState...
+
+   Deploying 'FeePoolState'
+   ------------------------
+   > transaction hash:    0x1ee935cf141596069f49441a0b8cf6e4a5a3181fc4ae7d7f034ac343d6bcb422
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x3bb6AC8E384815825D1e10845130461FABE647Ec
+   > block number:        643
+   > block timestamp:     1586694325
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699992.81988692
+   > gas used:            1328720
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.2391696 ETH
+
+Deploying FeePoolEternalStorage...
+
+   Deploying 'FeePoolEternalStorage'
+   ---------------------------------
+   > transaction hash:    0xbe5af763fea9124f3b6f258a3d0508d5ccf145ffbf75d1cd9138af9042e623a5
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xD2f14b0067F6Fc0d99311c055491b29F01B72004
+   > block number:        644
+   > block timestamp:     1586694330
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699992.5458578
+   > gas used:            1522384
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.27402912 ETH
+
+Deploying FeePool...
+
+   Linking
+   -------
+   * Contract: FeePool <--> Library: SafeDecimalMath (at address: 0xD2dFeb826630c923Be5311D932DA26B48CF16D47)
+
+   Deploying 'FeePool'
+   -------------------
+   > transaction hash:    0xbcdb974112be5d7ed16aadf3fc8236fc090293f6d74e0a727d51cdf63aeaef04
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x926eBFa9adECC50DDf490A9B1EEEc8C57d20E553
+   > block number:        645
+   > block timestamp:     1586694335
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699991.4541776
+   > gas used:            6064890
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          1.0916802 ETH
+
+Deploying RewardsDistribution...
+
+   Deploying 'RewardsDistribution'
+   -------------------------------
+   > transaction hash:    0xf13aa36041659728327c122c5dc76b470c9df683cc77ccad26332565645f27fd
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x024a958b81dfae65705F2C4AA839928D6D443F73
+   > block number:        650
+   > block timestamp:     1586694360
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699991.17765728
+   > gas used:            1536224
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.27652032 ETH
+
+Deploying SupplySchedule...
+
+   Linking
+   -------
+   * Contract: SupplySchedule <--> Library: SafeDecimalMath (at address: 0xD2dFeb826630c923Be5311D932DA26B48CF16D47)
+
+   Linking
+   -------
+   * Contract: SupplySchedule <--> Library: Math (at address: 0x39544629B20485590288025C65726932EB78DDaa)
+
+   Deploying 'SupplySchedule'
+   --------------------------
+   > transaction hash:    0x4b272fa48eceb6555ca80408409ec4a3fd598531f0804480ae659b611d2c9541
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xbbB02661b59ACb4791855568B1ace44640ab8A19
+   > block number:        651
+   > block timestamp:     1586694365
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699990.94807088
+   > gas used:            1275480
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.2295864 ETH
+
+Deploying SynthetixProxy...
+Deploying SynthetixTokenState...
+Deploying Synthetix...
+
+   Deploying 'Synthetix'
+   ---------------------
+   > transaction hash:    0xd8f33a716d28bc17f3a486d35d4bd3e429fb3d8836a507fe0b24d3cae0c9f857
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x4d2373f9F16d688dE2eA51c88f4aa00E5E510982
+   > block number:        654
+   > block timestamp:     1586694380
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699989.47688426
+   > gas used:            6984155
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          1.2571479 ETH
+
+
+   Linking
+   -------
+   * Contract: PurgeableSynth <--> Library: SafeDecimalMath (at address: 0xD2dFeb826630c923Be5311D932DA26B48CF16D47)
+Deploying SynthTokenState for sUSD...
+
+   Deploying 'TokenState'
+   ----------------------
+   > transaction hash:    0xf2389dc1876e9e0711c6707979cdcb91af0e6fd8625aaff63119c1c7b5c5890e
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x4dC6526a266F66223876cC98B9A537343aA3feEE
+   > block number:        664
+   > block timestamp:     1586694430
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699989.36841446
+   > gas used:            558472
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.10052496 ETH
+
+Deploying SynthProxy for sUSD...
+
+   Deploying 'Proxy'
+   -----------------
+   > transaction hash:    0x9c909339d7867b45726973bd511966c563f167dbb2a21a6d8bd3e0a6d4e97893
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x77b35287Fe507991023C235925b59E9AcE16eFd1
+   > block number:        665
+   > block timestamp:     1586694435
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699989.2578311
+   > gas used:            614352
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.11058336 ETH
+
+Deploying sUSD Synth...
+
+   Deploying 'Synth'
+   -----------------
+   > transaction hash:    0x072f253197037162643bd0b9dd81226174d650855bcacc5fdb30fa64a622b3f4
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xF61542CC054479A9c0BF9225E0143c86f33BC788
+   > block number:        666
+   > block timestamp:     1586694440
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699988.4969756
+   > gas used:            4226975
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.7608555 ETH
+
+Setting associated contract for sUSD token state...
+Setting proxy target for sUSD proxy...
+Adding sUSD to Synthetix contract...
+Deploying SynthTokenState for sAUD...
+
+   Replacing 'TokenState'
+   ----------------------
+   > transaction hash:    0xd21a8191598a256d2ad81b2ceddf08ba8d3ca3a0f25112384ba7f577a4f71de1
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x3cb9E128FFC29b3A968f7f1c67759dFEF8827fb5
+   > block number:        670
+   > block timestamp:     1586694460
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699988.39645064
+   > gas used:            558472
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.10052496 ETH
+
+Deploying SynthProxy for sAUD...
+
+   Replacing 'Proxy'
+   -----------------
+   > transaction hash:    0x62d4831deb59b3c68541427d84f474c46c69a895bde664a84a2f41906d70eb66
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xd5c664Ab4800357356938a6581D25F17Be507e24
+   > block number:        671
+   > block timestamp:     1586694465
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699988.28586728
+   > gas used:            614352
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.11058336 ETH
+
+Deploying sAUD Synth...
+
+   Replacing 'Synth'
+   -----------------
+   > transaction hash:    0x661bfad2832f3e37555beca1381ad4de3c75964628f84d9a7ebcc13f6dd47d8f
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xD93Bc70A77e52ad605a0508bB576cD9242ee2499
+   > block number:        672
+   > block timestamp:     1586694470
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699987.5250233
+   > gas used:            4226911
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.76084398 ETH
+
+Setting associated contract for sAUD token state...
+Setting proxy target for sAUD proxy...
+Adding sAUD to Synthetix contract...
+Deploying SynthTokenState for sEUR...
+
+   Replacing 'TokenState'
+   ----------------------
+   > transaction hash:    0xb46bb6bdf1408ee4ff8ca6488e081b716394e0f9aeb0254926dd501c54b06dbd
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xf50f9D57137d56AeA2757eF81Dc5f5b8850DA1E7
+   > block number:        676
+   > block timestamp:     1586694490
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699987.42449834
+   > gas used:            558472
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.10052496 ETH
+
+Deploying SynthProxy for sEUR...
+
+   Replacing 'Proxy'
+   -----------------
+   > transaction hash:    0xa545ae95ca2e8769cda1ae1929d481578d44498180cd5a75960fb2920bd8fd29
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x10775845EA7562E3d51816babb517cC25a59bc7e
+   > block number:        677
+   > block timestamp:     1586694495
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699987.31391498
+   > gas used:            614352
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.11058336 ETH
+
+Deploying sEUR Synth...
+
+   Replacing 'Synth'
+   -----------------
+   > transaction hash:    0x0178d5098b132e6b35922286b16bc41f2fe84b92471af1770d6525b09af80933
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xA1CB45383c4D4B4c5b4Ff41170233191A9430292
+   > block number:        678
+   > block timestamp:     1586694500
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699986.55305948
+   > gas used:            4226975
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.7608555 ETH
+
+Setting associated contract for sEUR token state...
+Setting proxy target for sEUR proxy...
+Adding sEUR to Synthetix contract...
+Deploying SynthTokenState for sBTC...
+
+   Replacing 'TokenState'
+   ----------------------
+   > transaction hash:    0xa2d3216f83f1ba5dc1f61195c747a9690916120ca21896755d6927a1d0e4a65d
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xAc13aAd387E648Bf18bFd92e30967D2B7B770FC3
+   > block number:        682
+   > block timestamp:     1586694520
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699986.45253452
+   > gas used:            558472
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.10052496 ETH
+
+Deploying SynthProxy for sBTC...
+
+   Replacing 'Proxy'
+   -----------------
+   > transaction hash:    0x8880ef79050a3fb57d11b7fef892438251fff69c7335ec35321ff2d025aae7a1
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x927250c809F417D08705a48a7262388E1929E571
+   > block number:        683
+   > block timestamp:     1586694525
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699986.34195116
+   > gas used:            614352
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.11058336 ETH
+
+Deploying sBTC Synth...
+
+   Replacing 'Synth'
+   -----------------
+   > transaction hash:    0x810c142b5a014127f39a1a1ab5af6a09a8c079d0ee94d03fb54bb92bee000695
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x17bcc853907A6EDA7E3D0f5baa833700eb3c6A22
+   > block number:        684
+   > block timestamp:     1586694530
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699985.58109566
+   > gas used:            4226975
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.7608555 ETH
+
+Setting associated contract for sBTC token state...
+Setting proxy target for sBTC proxy...
+Adding sBTC to Synthetix contract...
+Deploying SynthTokenState for iBTC...
+
+   Replacing 'TokenState'
+   ----------------------
+   > transaction hash:    0x5d473f569160e5902792859d833b673a315a9260de849f5b574def61ee159611
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x2c7B7523d3f584743991490Eba3c4731FcAf48d3
+   > block number:        688
+   > block timestamp:     1586694550
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699985.4805707
+   > gas used:            558472
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.10052496 ETH
+
+Deploying SynthProxy for iBTC...
+
+   Replacing 'Proxy'
+   -----------------
+   > transaction hash:    0x4c8238a80ac739309a767c2c0b9a82e73b8978af0b2e3b6fe4b51762ed0f06b0
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xeA2350ECE08b18aAa1a0114d4b13e2607f2D48DC
+   > block number:        689
+   > block timestamp:     1586694555
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699985.36998734
+   > gas used:            614352
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.11058336 ETH
+
+Deploying iBTC Synth...
+
+   Replacing 'Synth'
+   -----------------
+   > transaction hash:    0x47b8e85ca99bda3c9a45d58bd5c7f48f427389a7164766cacf47d05d527d40c2
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xE240aDDD46C7FEecfde04737ca5d09E3cb8F2e2B
+   > block number:        690
+   > block timestamp:     1586694560
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699984.60913184
+   > gas used:            4226975
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.7608555 ETH
+
+Setting associated contract for iBTC token state...
+Setting proxy target for iBTC proxy...
+Adding iBTC to Synthetix contract...
+Deploying SynthTokenState for sETH...
+
+   Replacing 'TokenState'
+   ----------------------
+   > transaction hash:    0x2129a5fe7cbd70c67547c7f2bc52e4def450dcdbff7fae52ce07eecd71cd75d6
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x67fa714655a5f4adEC743427153647FA641eee9A
+   > block number:        694
+   > block timestamp:     1586694580
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699984.50860688
+   > gas used:            558472
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.10052496 ETH
+
+Deploying SynthProxy for sETH...
+
+   Replacing 'Proxy'
+   -----------------
+   > transaction hash:    0x88473815cc8d6b73364778626f1db4c11a3674846804c9b9c02297ad42100807
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x6FdEB76B743B214a478529d0dcAb231CdcfeF366
+   > block number:        695
+   > block timestamp:     1586694585
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699984.39802352
+   > gas used:            614352
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.11058336 ETH
+
+Deploying sETH Synth...
+
+   Deploying 'MultiCollateralSynth'
+   --------------------------------
+   > transaction hash:    0x6f6013498de73fd5fa1c523018fd10004d48e76386266587627df3df7326a6c8
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xc7F2c206Ca6Cf851438448100c5988DbEf32e949
+   > block number:        696
+   > block timestamp:     1586694590
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699983.60872352
+   > gas used:            4385000
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.7893 ETH
+
+Setting associated contract for sETH token state...
+Setting proxy target for sETH proxy...
+Adding sETH to Synthetix contract...
+Deploying Depot...
+
+   Linking
+   -------
+   * Contract: Depot <--> Library: SafeDecimalMath (at address: 0xD2dFeb826630c923Be5311D932DA26B48CF16D47)
+
+   Deploying 'Depot'
+   -----------------
+   > transaction hash:    0xf9cc3bc612b1278bc3040e593a6f60c434f99f82821577bc96c6f8d10068875c
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x75B9498be3c1939c029C924d47c730805ADB3ECc
+   > block number:        700
+   > block timestamp:     1586694610
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699982.82842532
+   > gas used:            4334990
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.7802982 ETH
+
+Deploying EtherCollateral...
+
+   Linking
+   -------
+   * Contract: EtherCollateral <--> Library: SafeDecimalMath (at address: 0xD2dFeb826630c923Be5311D932DA26B48CF16D47)
+
+   Deploying 'EtherCollateral'
+   ---------------------------
+   > transaction hash:    0xd9658efe4ceea420de668b4aaec96bd294891462f667221b7af77cc3c99552af
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xb9f924B9D28Ad550610D65b035ddd644dA682a48
+   > block number:        701
+   > block timestamp:     1586694615
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699982.13278004
+   > gas used:            3864696
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.69564528 ETH
+
+Deploying SelfDestructible...
+
+   Deploying 'SelfDestructible'
+   ----------------------------
+   > transaction hash:    0x988f672f8fed0fbf11239f721e4ca66bb77cbfcebe7a29aedd41e8fd8fec48be
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x9A3cc9382D327Ee53f77c41C76fC2311784DE143
+   > block number:        702
+   > block timestamp:     1586694620
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699982.00636748
+   > gas used:            702292
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.12641256 ETH
+
+Deploying Exchanger...
+
+   Linking
+   -------
+   * Contract: Exchanger <--> Library: SafeDecimalMath (at address: 0xD2dFeb826630c923Be5311D932DA26B48CF16D47)
+
+   Deploying 'Exchanger'
+   ---------------------
+   > transaction hash:    0xab5ed9d66ed01a4e4ce9070556d729dfee8bd69f3455c853a3bcad6dbf4ef630
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xd278a2738a3bd69866254A7F61F6253AD655E5D8
+   > block number:        703
+   > block timestamp:     1586694625
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699981.40738634
+   > gas used:            3327673
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.59898114 ETH
+
+Deploying ExchangeState...
+
+   Deploying 'ExchangeState'
+   -------------------------
+   > transaction hash:    0x34d2420d95e9532efadb636e6bb225071b14cc49de07aded52add5b7609ef95d
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xdD770930AEee5C428cA5BC7F7DF1e58Da0Da07e0
+   > block number:        704
+   > block timestamp:     1586694630
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699981.2440034
+   > gas used:            907683
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.16338294 ETH
+
+Deploying Issuer...
+
+   Linking
+   -------
+   * Contract: Issuer <--> Library: SafeDecimalMath (at address: 0xD2dFeb826630c923Be5311D932DA26B48CF16D47)
+
+   Deploying 'Issuer'
+   ------------------
+   > transaction hash:    0x94de12b2546afdcbb73c4b1c220bedb3c81bbe24dd443b118478a00dd4270ef8
+   > Blocks: 0            Seconds: 4
+   > contract address:    0xb248ED04E1f1BBb661b56f210e4b0399B2899D16
+   > block number:        705
+   > block timestamp:     1586694635
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699980.60180606
+   > gas used:            3567763
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.64219734 ETH
+
+Deploying IssuanceEternalStorage...
+
+   Deploying 'IssuanceEternalStorage'
+   ----------------------------------
+   > transaction hash:    0xdd274b2b70ba7f3ae360610717c76a698dc958a88241853f43c07ce2e3907473
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x8F690A643EDf67F663c4Ba3655A95B8e66B3A076
+   > block number:        706
+   > block timestamp:     1586694640
+   > account:             0x2d0E7c0813A51d3bd1d08246Af2A8a7A57d8922E
+   > balance:             9999999999999699980.365643
+   > gas used:            1312017
+   > gas price:           180 gwei
+   > value sent:          0 ETH
+   > total cost:          0.23616306 ETH
+
+Setting associated contract of SynthetixState to Issuer...
+Adding addresses to Resolver...
+
+
+╔══════════════════════════╤════════════════════════════════════════════╗
+║ Contract                 │ Address                                    ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ AddressResolver          │ 0xf525DA97D3Ee531f8cBe6c60A62bA2baf75752E1 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ DelegateApprovals        │ 0xE6528cDF4DEF45a0eaFA6cb4Ea1e2D60CC82B6CD ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ EtherCollateral          │ 0xb9f924B9D28Ad550610D65b035ddd644dA682a48 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Exchange Rates           │ 0x761C2B158FB68e7c2B1a22aBE15F06E54C55D5D3 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Fee Pool                 │ 0x926eBFa9adECC50DDf490A9B1EEEc8C57d20E553 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Fee Pool Proxy           │ 0x0F822bEa93Fd99DA59D9582e2EdeF9c4C9Ad1e7e ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Fee Pool State           │ 0x3bb6AC8E384815825D1e10845130461FABE647Ec ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Fee Pool Eternal Storage │ 0xD2f14b0067F6Fc0d99311c055491b29F01B72004 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Synthetix State          │ 0x40B679EA219DB003B7ab7393EF89aF671c79BeED ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Synthetix Token State    │ 0xe19E116ea7521118Ae1B5Da504E2AEAAB5fd8bA6 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Synthetix Proxy          │ 0x642faB95761d85eA187D180863Fd42FA4114a211 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Synthetix                │ 0x4d2373f9F16d688dE2eA51c88f4aa00E5E510982 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Synthetix Escrow         │ 0xcfd663CF68BBDA7ea22c91978eA02d32B7Ec6756 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Reward Escrow            │ 0xa81A2947240BfD4F42D6770725EDA8Ab51eeCb3c ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Rewards Distribution     │ 0x024a958b81dfae65705F2C4AA839928D6D443F73 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Depot                    │ 0x75B9498be3c1939c029C924d47c730805ADB3ECc ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Owned                    │ 0xeaaeFc601693d117E8f8881b4BBa90EfDAba1e6b ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ SafeDecimalMath          │ 0xD2dFeb826630c923Be5311D932DA26B48CF16D47 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ SelfDestructible         │ 0x9A3cc9382D327Ee53f77c41C76fC2311784DE143 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Issuer                   │ 0xb248ED04E1f1BBb661b56f210e4b0399B2899D16 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ Issuance Eternal Storage │ 0x8F690A643EDf67F663c4Ba3655A95B8e66B3A076 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sUSD Synth               │ 0xF61542CC054479A9c0BF9225E0143c86f33BC788 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sUSD Proxy               │ 0x77b35287Fe507991023C235925b59E9AcE16eFd1 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sUSD Token State         │ 0x4dC6526a266F66223876cC98B9A537343aA3feEE ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sAUD Synth               │ 0xD93Bc70A77e52ad605a0508bB576cD9242ee2499 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sAUD Proxy               │ 0xd5c664Ab4800357356938a6581D25F17Be507e24 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sAUD Token State         │ 0x3cb9E128FFC29b3A968f7f1c67759dFEF8827fb5 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sEUR Synth               │ 0xA1CB45383c4D4B4c5b4Ff41170233191A9430292 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sEUR Proxy               │ 0x10775845EA7562E3d51816babb517cC25a59bc7e ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sEUR Token State         │ 0xf50f9D57137d56AeA2757eF81Dc5f5b8850DA1E7 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sBTC Synth               │ 0x17bcc853907A6EDA7E3D0f5baa833700eb3c6A22 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sBTC Proxy               │ 0x927250c809F417D08705a48a7262388E1929E571 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sBTC Token State         │ 0xAc13aAd387E648Bf18bFd92e30967D2B7B770FC3 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ iBTC Synth               │ 0xE240aDDD46C7FEecfde04737ca5d09E3cb8F2e2B ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ iBTC Proxy               │ 0xeA2350ECE08b18aAa1a0114d4b13e2607f2D48DC ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ iBTC Token State         │ 0x2c7B7523d3f584743991490Eba3c4731FcAf48d3 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sETH Synth               │ 0xc7F2c206Ca6Cf851438448100c5988DbEf32e949 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sETH Proxy               │ 0x6FdEB76B743B214a478529d0dcAb231CdcfeF366 ║
+╟──────────────────────────┼────────────────────────────────────────────╢
+║ sETH Token State         │ 0x67fa714655a5f4adEC743427153647FA641eee9A ║
+╚══════════════════════════╧════════════════════════════════════════════╝

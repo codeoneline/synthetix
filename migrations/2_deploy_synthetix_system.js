@@ -42,6 +42,10 @@ const SYNTHETIX_TOTAL_SUPPLY = web3.utils.toWei('100000000');
 
 module.exports = async function(deployer, network, accounts) {
 	const [deployerAccount, owner, oracle, fundsWallet] = accounts;
+	console.log(deployerAccount);
+	console.log(owner);
+	console.log(oracle);
+	console.log(fundsWallet);
 
 	// Note: This deployment script is not used on mainnet, it's only for testing deployments.
 	const deployedContracts = [];

@@ -16,7 +16,7 @@ const {
 const stringify = input => JSON.stringify(input, null, '\t') + '\n';
 
 const ensureNetwork = network => {
-	if (!/^(local|kovan|rinkeby|ropsten|mainnet)$/.test(network)) {
+	if (!/^(local|kovan|rinkeby|ropsten|mainnet|wan|wanlocal|wantest)$/.test(network)) {
 		throw Error(
 			`Invalid network name of "${network}" supplied. Must be one of local, kovan, rinkeby, ropsten or mainnet`
 		);
@@ -69,6 +69,30 @@ const loadAndCheckRequiredSources = ({ deploymentPath, network }) => {
 const loadConnections = ({ network }) => {
 	if (network !== 'local' && !process.env.INFURA_PROJECT_ID) {
 		throw Error('Missing .env key of INFURA_PROJECT_ID. Please add and retry.');
+	}
+
+	// TODO:
+	if (network === 'wan') {
+		const providerUrl = 'http://127.0.0.1:8545';
+		const privateKey = process.env.TESTNET_DEPLOY_PRIVATE_KEY;
+		const wanAddress = process.env.WAN_ADDRESS;
+		const etherscanUrl = 'https://api.etherscan.io/api';
+		const etherscanLinkPrefix = `https://www.wanscan.org`;
+		return { providerUrl, privateKey, etherscanUrl, etherscanLinkPrefix, wanAddress };
+	} else if (network === 'wanlocal') {
+		const providerUrl = 'http://127.0.0.1:8545';
+		const privateKey = process.env.TESTNET_DEPLOY_PRIVATE_KEY;
+		const wanAddress = process.env.WAN_ADDRESS;
+		const etherscanUrl = 'https://api.etherscan.io/api';
+		const etherscanLinkPrefix = `https://www.wanscan.org`;
+		return { providerUrl, privateKey, etherscanUrl, etherscanLinkPrefix, wanAddress };
+	} else if (network === 'wantest') {
+		const providerUrl = 'http://127.0.0.1:8545';
+		const privateKey = process.env.TESTNET_DEPLOY_PRIVATE_KEY;
+		const wanAddress = process.env.WAN_ADDRESS;
+		const etherscanUrl = 'https://api.etherscan.io/api';
+		const etherscanLinkPrefix = `https://www.wanscan.org`;
+		return { providerUrl, privateKey, etherscanUrl, etherscanLinkPrefix, wanAddress };
 	}
 
 	const providerUrl =
@@ -154,7 +178,8 @@ const performTransactionalStep = async ({
 		}
 	}
 	// otherwuse check the owner
-	const owner = await target.methods.owner().call();
+	let owner = await target.methods.owner().call();
+	owner = owner.toLowerCase();
 	const argumentsForWriteFunction = [].concat(writeArg).filter(entry => entry !== undefined); // reduce to array of args
 	if (owner === account) {
 		// perform action

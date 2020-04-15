@@ -124,6 +124,7 @@ const deploy = async ({
 		deployment,
 		privateKey,
 		providerUrl,
+		network,
 	});
 
 	const { account } = deployer;
@@ -174,6 +175,10 @@ const deploy = async ({
 			currentSynthetixSupply = w3utils.toWei((100e6).toString());
 			currentWeekOfInflation = 0;
 			currentLastMintEvent = 0;
+		} else if (/^wan/.test(network)) {
+			currentSynthetixSupply = w3utils.toWei((100e6).toString());
+			currentWeekOfInflation = 0;
+			currentLastMintEvent = 0;
 		} else {
 			console.error(
 				red(
@@ -190,6 +195,8 @@ const deploy = async ({
 		currentExchangeFee = await oldFeePool.methods.exchangeFeeRate().call();
 	} catch (err) {
 		if (network === 'local') {
+			currentExchangeFee = w3utils.toWei('0.003'.toString());
+		} else if (/^wan/.test(network)) {
 			currentExchangeFee = w3utils.toWei('0.003'.toString());
 		} else {
 			console.error(
@@ -210,6 +217,10 @@ const deploy = async ({
 		}
 	} catch (err) {
 		if (network === 'local') {
+			currentSynthetixPrice = w3utils.toWei('0.2');
+			oracleExrates = account;
+			oldExrates = undefined; // unset to signify that a fresh one will be deployed
+		} else if (/^wan/.test(network)) {
 			currentSynthetixPrice = w3utils.toWei('0.2');
 			oracleExrates = account;
 			oldExrates = undefined; // unset to signify that a fresh one will be deployed
@@ -824,7 +835,7 @@ const deploy = async ({
 				const oldSynth = getExistingContract({ contract: `Synth${currencyKey}` });
 				originalTotalSupply = await oldSynth.methods.totalSupply().call();
 			} catch (err) {
-				if (network !== 'local') {
+				if (!/^wan/.test(network) && network !== 'local') {
 					// only throw if not local - allows local environments to handle both new
 					// and updating configurations
 					throw err;

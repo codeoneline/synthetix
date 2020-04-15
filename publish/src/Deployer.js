@@ -3,6 +3,7 @@
 const linker = require('solc/linker');
 const Web3 = require('web3');
 const { gray, green, yellow } = require('chalk');
+const privateKeyToAddress = require('ethereum-private-key-to-address');
 
 /**
  *
@@ -23,6 +24,7 @@ class Deployer {
 		contractDeploymentGasLimit,
 		providerUrl,
 		privateKey,
+		network,
 	}) {
 		this.compiled = compiled;
 		this.config = config;
@@ -33,10 +35,11 @@ class Deployer {
 
 		// Configure Web3 so we can sign transactions and connect to the network.
 		this.web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
-
-		this.web3.eth.accounts.wallet.add(privateKey);
-		this.web3.eth.defaultAccount = this.web3.eth.accounts.wallet[0].address;
-		this.account = this.web3.eth.defaultAccount;
+		this.account = privateKeyToAddress(privateKey).toLowerCase();
+		if (!network || !/^wan/.test(network)) {
+			this.web3.eth.accounts.wallet.add(privateKey);
+			this.web3.eth.defaultAccount = this.account;
+		}
 		this.deployedContracts = {};
 		this._dryRunCounter = 0;
 	}

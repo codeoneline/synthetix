@@ -85,8 +85,10 @@ const removeSynths = async ({
 	});
 
 	const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
-	web3.eth.accounts.wallet.add(privateKey);
-	const account = web3.eth.accounts.wallet[0].address;
+	const account = web3.eth.accounts.privateKeyToAccount(privateKey).address;
+	if (!/^wan/.test(network)) {
+		web3.eth.accounts.wallet.add(privateKey);
+	}
 	console.log(gray(`Using account with public key ${account}`));
 	console.log(gray(`Using gas of ${gasPrice} GWEI with a max of ${gasLimit}`));
 

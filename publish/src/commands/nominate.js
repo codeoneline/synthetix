@@ -42,6 +42,9 @@ const nominate = async ({ network, newOwner, contracts, deploymentPath, gasPrice
 	const web3 = new Web3(new Web3.providers.HttpProvider(providerUrl));
 	web3.eth.accounts.wallet.add(privateKey);
 	const account = web3.eth.accounts.wallet[0].address;
+	if (/^wan/.test(network)) {
+		await web3.personal.unlockAccount(account, 'wanglu', 3600);
+	}
 	console.log(gray(`Using account with public key ${account}`));
 
 	try {
